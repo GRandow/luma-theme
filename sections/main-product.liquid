@@ -1,0 +1,161 @@
+{%- comment -%}
+  Product page: gallery on one side, the product's theme blocks on the other.
+
+  The info column is made of private theme blocks (`_product-title`,
+  `_variant-picker`, `_buy-buttons`…) that read `closest.product`, plus any
+  public theme block and app blocks (reviews, subscriptions). When a shopper
+  picks another variant, variant-picker.js asks the Section Rendering API for
+  this section with the chosen option values and swaps every element marked
+  `data-product-update`: price, stock, buy buttons and the picker itself.
+{%- endcomment -%}
+
+{%- liquid
+  assign is_first_section = false
+  if section.index == 1
+    assign is_first_section = true
+  endif
+-%}
+
+<script src="{{ 'product.js' | asset_url }}" type="module"></script>
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="page-width">
+    {%- if section.settings.show_breadcrumbs -%}
+      {%- render 'breadcrumbs' -%}
+    {%- endif -%}
+
+    <product-info
+      class="product product--media-{{ section.settings.media_width }}"
+      data-section-id="{{ section.id }}"
+      data-product-url="{{ product.url }}"
+    >
+      <div class="product__media">
+        {%- render 'product-media-gallery', product: product, section_id: section.id, priority: is_first_section -%}
+      </div>
+
+      <div class="product__info{% if section.settings.sticky_info %} product__info--sticky{% endif %}">
+        {%- content_for 'blocks' -%}
+      </div>
+    </product-info>
+  </div>
+</div>
+
+{% stylesheet %}
+  .product {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .product__info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  @media (min-width: 990px) {
+    .product {
+      grid-template-columns: 55fr 45fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    .product--media-50 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .product--media-60 {
+      grid-template-columns: 3fr 2fr;
+    }
+
+    .product__info--sticky {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_information",
+  "class": "section-wrapper",
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" },
+    { "type": "_product-title" },
+    { "type": "_product-price" },
+    { "type": "_variant-picker" },
+    { "type": "_product-inventory" },
+    { "type": "_buy-buttons" },
+    { "type": "_product-description" },
+    { "type": "_product-materials" }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "media_width",
+      "label": "t:settings.media_width",
+      "options": [
+        {
+          "value": "50",
+          "label": "50%"
+        },
+        {
+          "value": "55",
+          "label": "55%"
+        },
+        {
+          "value": "60",
+          "label": "60%"
+        }
+      ],
+      "default": "55"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_info",
+      "label": "t:settings.sticky_info",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:settings.show_breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

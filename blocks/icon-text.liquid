@@ -1,0 +1,158 @@
+{%- doc -%}
+  An icon with a short heading and text: store benefits, care tips, steps.
+{%- enddoc -%}
+
+<div
+  class="icon-text icon-text--{{ block.settings.layout }}{% if block.settings.bordered %} icon-text--bordered{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  <span class="icon-text__icon">
+    {%- render 'icon', name: block.settings.icon -%}
+  </span>
+  <div class="icon-text__content">
+    {%- if block.settings.heading != blank -%}
+      <p class="icon-text__heading">{{ block.settings.heading | escape }}</p>
+    {%- endif -%}
+    {%- if block.settings.text != blank -%}
+      <p class="icon-text__text text-muted">{{ block.settings.text }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .icon-text {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  .icon-text--column {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .icon-text--bordered {
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: calc(var(--radius) * 0.7);
+  }
+
+  .icon-text__icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 3rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+    color: var(--color-accent);
+  }
+
+  .icon-text__icon .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .icon-text__heading {
+    font-weight: var(--font-body-weight-bold);
+    font-size: 1.0625rem;
+  }
+
+  .icon-text__text {
+    font-size: 0.9375rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.icon_text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        {
+          "value": "truck",
+          "label": "t:options.icon.truck"
+        },
+        {
+          "value": "return",
+          "label": "t:options.icon.return"
+        },
+        {
+          "value": "shield",
+          "label": "t:options.icon.shield"
+        },
+        {
+          "value": "check",
+          "label": "t:options.icon.check"
+        },
+        {
+          "value": "leaf",
+          "label": "t:options.icon.leaf"
+        },
+        {
+          "value": "sparkle",
+          "label": "t:options.icon.sparkle"
+        },
+        {
+          "value": "gift",
+          "label": "t:options.icon.gift"
+        },
+        {
+          "value": "chat",
+          "label": "t:options.icon.chat"
+        },
+        {
+          "value": "map-pin",
+          "label": "t:options.icon.map_pin"
+        }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "t:defaults.icon_text_heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "default": "t:defaults.icon_text_text"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:settings.layout",
+      "options": [
+        {
+          "value": "row",
+          "label": "t:options.direction.row"
+        },
+        {
+          "value": "column",
+          "label": "t:options.direction.column"
+        }
+      ],
+      "default": "row"
+    },
+    {
+      "type": "checkbox",
+      "id": "bordered",
+      "label": "t:settings.bordered",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.icon_text",
+      "category": "t:categories.text"
+    }
+  ]
+}
+{% endschema %}

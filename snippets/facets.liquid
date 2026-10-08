@@ -1,0 +1,260 @@
+{%- doc -%}
+  Storefront filtering form for collection and search results. It renders
+  whatever filters the merchant configured in the Search & Discovery app:
+  checkbox lists (shown as color swatches or images when the filter's
+  presentation asks for it), a price range and boolean filters.
+
+  It is an ordinary GET form, so it filters without JavaScript; facets.js
+  submits it through the Section Rendering API instead and keeps the URL in
+  sync, so filtered pages stay shareable and the back button works.
+
+  @param {object} results - The `collection` or `search` object
+  @param {string} section_id - The section that owns the form
+  @param {string} action - Form action: the collection URL or the search route
+  @param {string} [terms] - Search terms, kept as a hidden field on search pages
+
+  @example
+  {% render 'facets', results: collection, section_id: section.id, action: collection.url %}
+{%- enddoc -%}
+
+{%- assign form_id = 'FacetsForm-' | append: section_id -%}
+
+<form id="{{ form_id }}" class="facets" action="{{ action }}" method="get" data-facets-form>
+  {%- if terms != blank -%}
+    <input type="hidden" name="q" value="{{ terms | escape }}">
+    <input type="hidden" name="options[prefix]" value="last">
+  {%- endif -%}
+
+  {%- for filter in results.filters -%}
+    {%- assign filter_key = filter.param_name | handle -%}
+    {%- case filter.type -%}
+      {%- when 'list', 'boolean' -%}
+        <details
+          class="accordion facets__filter"
+          data-filter-key="{{ filter_key }}"
+          {% if forloop.index <= 3 or filter.active_values.size > 0 %}
+            open
+          {% endif %}
+        >
+          <summary class="accordion__summary" data-filter-summary="{{ filter_key }}">
+            <span>{{ filter.label | escape }}</span>
+            {%- if filter.active_values.size > 0 -%}
+              <span class="facets__active-count">{{ filter.active_values.size }}</span>
+            {%- endif -%}
+            {%- render 'icon', name: 'chevron-down' -%}
+          </summary>
+          <fieldset
+            class="accordion__content facets__values{% if filter.presentation == 'swatch' %} facets__values--swatches{% endif %}"
+            data-filter-values="{{ filter_key }}"
+          >
+            <legend class="visually-hidden">{{ filter.label | escape }}</legend>
+            {%- for value in filter.values -%}
+              {%- assign input_id = 'Filter-'
+                | append: section_id
+                | append: '-'
+                | append: filter_key
+                | append: '-'
+                | append: forloop.index
+              -%}
+              <div class="facets__value">
+                <input
+                  type="checkbox"
+                  id="{{ input_id }}"
+                  name="{{ value.param_name }}"
+                  value="{{ value.value | escape }}"
+                  {% if value.active %}
+                    checked
+                  {% endif %}
+                  {% if value.count == 0 and value.active == false %}
+                    disabled
+                  {% endif %}
+                >
+                <label for="{{ input_id }}">
+                  {%- if filter.presentation == 'swatch' -%}
+                    {%- render 'swatch', swatch: value.swatch -%}
+                  {%- elsif filter.presentation == 'image' and value.image -%}
+                    {{
+                      value.image
+                      | image_url: width: 64
+                      | image_tag: class: 'facets__value-image', alt: '', loading: 'lazy'
+                    }}
+                  {%- else -%}
+                    <span class="facets__checkbox" aria-hidden="true">{% render 'icon', name: 'check' %}</span>
+                  {%- endif -%}
+                  <span class="facets__value-label">{{ value.label | escape }}</span>
+                  <span class="facets__value-count">{{ value.count }}</span>
+                </label>
+              </div>
+            {%- endfor -%}
+          </fieldset>
+        </details>
+
+      {%- when 'price_range' -%}
+        {%- liquid
+          assign range_max = filter.range_max | divided_by: 100.0 | ceil
+          if filter.min_value.value
+            assign min_value = filter.min_value.value | divided_by: 100.0 | round: 2
+          else
+            assign min_value = ''
+          endif
+          if filter.max_value.value
+            assign max_value = filter.max_value.value | divided_by: 100.0 | round: 2
+          else
+            assign max_value = ''
+          endif
+          assign highest_price = filter.range_max | money
+        -%}
+        <details class="accordion facets__filter" data-filter-key="{{ filter_key }}" open>
+          <summary class="accordion__summary">
+            <span>{{ filter.label | escape }}</span>
+            {%- render 'icon', name: 'chevron-down' -%}
+          </summary>
+          <div class="accordion__content" data-filter-values="{{ filter_key }}">
+            <div class="facets__price">
+              <div class="field">
+                <label class="field__label" for="{{ form_id }}-PriceMin">{{ 'collections.price_min' | t }}</label>
+                <input
+                  id="{{ form_id }}-PriceMin"
+                  class="input"
+                  type="number"
+                  inputmode="decimal"
+                  name="{{ filter.min_value.param_name }}"
+                  value="{{ min_value }}"
+                  min="0"
+                  max="{{ range_max }}"
+                  step="any"
+                  placeholder="0"
+                  data-price-input
+                >
+              </div>
+              <div class="field">
+                <label class="field__label" for="{{ form_id }}-PriceMax">{{ 'collections.price_max' | t }}</label>
+                <input
+                  id="{{ form_id }}-PriceMax"
+                  class="input"
+                  type="number"
+                  inputmode="decimal"
+                  name="{{ filter.max_value.param_name }}"
+                  value="{{ max_value }}"
+                  min="0"
+                  max="{{ range_max }}"
+                  step="any"
+                  placeholder="{{ range_max }}"
+                  data-price-input
+                >
+              </div>
+            </div>
+            <p class="text-small text-muted">{{ 'collections.price_highest_html' | t: price: highest_price }}</p>
+          </div>
+        </details>
+    {%- endcase -%}
+  {%- endfor -%}
+
+  <noscript>
+    <button type="submit" class="button button--full">{{ 'collections.apply_filters' | t }}</button>
+  </noscript>
+</form>
+
+{% stylesheet %}
+  .facets__filter:first-of-type {
+    border-top: 0;
+  }
+
+  .facets__active-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.375rem;
+    height: 1.375rem;
+    padding: 0 0.375rem;
+    border-radius: 999px;
+    background: var(--color-text);
+    color: var(--color-background);
+    font-size: 0.75rem;
+  }
+
+  .facets__values {
+    display: grid;
+    gap: 0.25rem;
+    border: 0;
+    margin: 0;
+    padding-inline: 0;
+  }
+
+  .facets__value input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .facets__value label {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.375rem 0;
+    cursor: pointer;
+  }
+
+  .facets__checkbox {
+    display: grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 0.375rem;
+    color: transparent;
+  }
+
+  .facets__checkbox .icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .facets__value input:checked + label .facets__checkbox {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-background);
+  }
+
+  .facets__value input:checked + label .swatch {
+    box-shadow:
+      0 0 0 2px var(--color-background),
+      0 0 0 3px var(--color-text);
+  }
+
+  .facets__value input:checked + label .facets__value-image {
+    box-shadow:
+      0 0 0 2px var(--color-background),
+      0 0 0 3px var(--color-text);
+  }
+
+  .facets__value input:focus-visible + label {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  .facets__value input:disabled + label {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .facets__value-count {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  .facets__value-image {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+    object-fit: cover;
+  }
+
+  .facets__price {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+{% endstylesheet %}

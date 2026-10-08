@@ -1,0 +1,84 @@
+{%- doc -%}
+  Rich text theme block. Its text setting accepts dynamic sources, so it can
+  show a metafield (a product's care instructions, a collection's intro).
+{%- enddoc -%}
+
+<div
+  class="block-text rte {{ block.settings.style }}{% if block.settings.muted %} text-muted{% endif %}"
+  style="--text-align: {{ block.settings.alignment }};"
+  {{ block.shopify_attributes }}
+>
+  {{- block.settings.text -}}
+</div>
+
+{% stylesheet %}
+  .block-text {
+    text-align: var(--text-align);
+    max-width: 42rem;
+  }
+
+  .block-text[style*='center'] {
+    margin-inline: auto;
+  }
+
+  .block-text.eyebrow p {
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "default": "t:html_defaults.text"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:settings.text_style",
+      "options": [
+        {
+          "value": "text-body",
+          "label": "t:options.text_style.body"
+        },
+        {
+          "value": "text-lead",
+          "label": "t:options.text_style.lead"
+        },
+        {
+          "value": "text-small",
+          "label": "t:options.text_style.small"
+        },
+        {
+          "value": "eyebrow",
+          "label": "t:options.text_style.eyebrow"
+        }
+      ],
+      "default": "text-body"
+    },
+    {
+      "type": "checkbox",
+      "id": "muted",
+      "label": "t:settings.muted_text",
+      "default": false
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "default": "left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.text",
+      "category": "t:categories.text"
+    }
+  ]
+}
+{% endschema %}

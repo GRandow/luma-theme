@@ -1,0 +1,30 @@
+{%- doc -%}
+  Color or pattern swatch from an option value's swatch (set on the product's
+  category metafields or the option value itself).
+
+  @param {object} swatch - A swatch object with `color` and/or `image`
+  @param {string} [label] - Visually hidden name, e.g. the color name
+
+  @example
+  {% render 'swatch', swatch: value.swatch, label: value.name %}
+{%- enddoc -%}
+
+{%- liquid
+  assign swatch_background = ''
+  if swatch.image
+    assign swatch_image_url = swatch.image | image_url: width: 64
+    assign swatch_background = 'url(' | append: swatch_image_url | append: ')'
+  elsif swatch.color
+    assign swatch_background = swatch.color
+  endif
+-%}
+
+<span
+  class="swatch"
+  {% if swatch_background != blank %}
+    style="--swatch-background: {{ swatch_background }};"
+  {% endif %}
+></span>
+{%- if label != blank -%}
+  <span class="visually-hidden">{{ label | escape }}</span>
+{%- endif -%}

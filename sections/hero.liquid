@@ -1,0 +1,351 @@
+{%- comment -%}
+  Hero: theme blocks over an optional background image, as a rounded card
+  inside the page width (the Luma look) or edge to edge.
+
+  As the first section of a page its image is the Largest Contentful Paint
+  element, so it is loaded eagerly with high fetch priority. A separate
+  mobile image is served through <picture>, so phones never download the
+  wide desktop crop.
+{%- endcomment -%}
+
+{%- liquid
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign is_first_section = false
+  if section.index == 1
+    assign is_first_section = true
+  endif
+-%}
+
+<div
+  class="hero hero--{{ section.settings.layout }} hero--{{ section.settings.height }}{% if section.settings.layout == 'card' %} page-width{% endif %}"
+>
+  <div
+    class="hero__inner color-{{ section.settings.color_scheme }}{% if image != blank %} hero__inner--has-image{% endif %}"
+    style="--overlay-opacity: {{ section.settings.overlay | divided_by: 100.0 }};"
+  >
+    {%- if image != blank -%}
+      <div class="hero__media">
+        {%- if image_mobile != blank -%}
+          <picture>
+            <source
+              media="(max-width: 749px)"
+              srcset="
+                {{ image_mobile | image_url: width: 600 }} 600w,
+                {{ image_mobile | image_url: width: 900 }} 900w,
+                {{ image_mobile | image_url: width: 1200 }} 1200w
+              "
+              sizes="100vw"
+              width="{{ image_mobile.width }}"
+              height="{{ image_mobile.height }}"
+            >
+            {%- if is_first_section -%}
+              {{
+                image
+                | image_url: width: 2400
+                | image_tag:
+                  widths: '750, 1100, 1500, 1800, 2400',
+                  sizes: '100vw',
+                  loading: 'eager',
+                  fetchpriority: 'high',
+                  alt: image.alt
+              }}
+            {%- else -%}
+              {{
+                image
+                | image_url: width: 2400
+                | image_tag: widths: '750, 1100, 1500, 1800, 2400', sizes: '100vw', loading: 'lazy', alt: image.alt
+              }}
+            {%- endif -%}
+          </picture>
+        {%- else -%}
+          {%- render 'image', image: image, sizes: '100vw', priority: is_first_section -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div
+      class="hero__content hero__content--{{ section.settings.horizontal_position }} hero__content--{{ section.settings.vertical_position }}"
+    >
+      <div class="hero__blocks">
+        {%- content_for 'blocks' -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .hero {
+    --hero-height: 34rem;
+    padding-top: 1rem;
+  }
+
+  .hero--small {
+    --hero-height: 26rem;
+  }
+
+  .hero--large {
+    --hero-height: 42rem;
+  }
+
+  .hero--screen {
+    --hero-height: calc(100svh - 7rem);
+  }
+
+  .hero--card {
+    padding-top: clamp(1rem, 2vw, 1.75rem);
+  }
+
+  .hero__inner {
+    position: relative;
+    display: grid;
+    min-height: min(var(--hero-height), 100svh);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero--card .hero__inner {
+    border-radius: calc(var(--radius) * 1.35);
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero__media img,
+  .hero__media picture {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__inner--has-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #11110f;
+    opacity: var(--overlay-opacity);
+  }
+
+  .hero__content {
+    display: flex;
+    padding: clamp(2.5rem, 7vw, 5rem) clamp(1.5rem, 6vw, 4rem);
+  }
+
+  .hero__content--start {
+    justify-content: flex-start;
+  }
+
+  .hero__content--center {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hero__content--end {
+    justify-content: flex-end;
+  }
+
+  .hero__content--top {
+    align-items: flex-start;
+  }
+
+  .hero__content--middle {
+    align-items: center;
+  }
+
+  .hero__content--bottom {
+    align-items: flex-end;
+  }
+
+  .hero__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 44rem;
+  }
+
+  .hero__content--center .hero__blocks {
+    align-items: center;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.hero",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [{ "type": "@theme" }],
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:settings.layout",
+      "options": [
+        {
+          "value": "card",
+          "label": "t:options.hero_layout.card"
+        },
+        {
+          "value": "full",
+          "label": "t:options.hero_layout.full"
+        }
+      ],
+      "default": "card"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "info": "t:info.hero_color_scheme",
+      "default": "scheme-4"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "t:settings.image_mobile",
+      "visible_if": "{{ section.settings.image != blank }}"
+    },
+    {
+      "type": "range",
+      "id": "overlay",
+      "label": "t:settings.overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 30,
+      "visible_if": "{{ section.settings.image != blank }}"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "t:settings.height",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:options.size.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:options.size.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:options.size.large"
+        },
+        {
+          "value": "screen",
+          "label": "t:options.size.screen"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_position",
+      "label": "t:settings.horizontal_position",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:options.alignment.start"
+        },
+        {
+          "value": "center",
+          "label": "t:options.alignment.center"
+        },
+        {
+          "value": "end",
+          "label": "t:options.alignment.end"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "vertical_position",
+      "label": "t:settings.vertical_position",
+      "options": [
+        {
+          "value": "top",
+          "label": "t:options.alignment.top"
+        },
+        {
+          "value": "middle",
+          "label": "t:options.alignment.middle"
+        },
+        {
+          "value": "bottom",
+          "label": "t:options.alignment.bottom"
+        }
+      ],
+      "default": "middle"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.hero",
+      "category": "t:categories.banners",
+      "blocks": {
+        "eyebrow": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.hero_eyebrow",
+            "style": "eyebrow"
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "t:defaults.hero_heading",
+            "tag": "h1",
+            "size": "h0"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.hero_text",
+            "style": "text-lead"
+          }
+        },
+        "buttons": {
+          "type": "group",
+          "settings": {
+            "direction": "row",
+            "gap": 12
+          },
+          "blocks": {
+            "primary": {
+              "type": "button",
+              "settings": {
+                "label": "t:defaults.hero_primary_button",
+                "link": "shopify://collections/all",
+                "show_arrow": true
+              }
+            },
+            "secondary": {
+              "type": "button",
+              "settings": {
+                "label": "t:defaults.hero_secondary_button",
+                "style": "secondary"
+              }
+            }
+          },
+          "block_order": ["primary", "secondary"]
+        }
+      },
+      "block_order": ["eyebrow", "heading", "text", "buttons"]
+    }
+  ]
+}
+{% endschema %}

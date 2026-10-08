@@ -1,0 +1,42 @@
+{%- doc -%}
+  Empty vertical space between blocks.
+{%- enddoc -%}
+
+<div
+  class="block-spacer"
+  style="--height: {{ block.settings.height }}px;"
+  aria-hidden="true"
+  {{ block.shopify_attributes }}
+></div>
+
+{% stylesheet %}
+  .block-spacer {
+    height: var(--height);
+    flex-shrink: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.spacer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "range",
+      "id": "height",
+      "label": "t:settings.height",
+      "min": 4,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.spacer",
+      "category": "t:categories.layout"
+    }
+  ]
+}
+{% endschema %}

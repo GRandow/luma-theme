@@ -1,0 +1,19 @@
+{%- doc -%}
+  The product's description from the admin.
+{%- enddoc -%}
+
+{%- assign product = closest.product -%}
+
+{%- if product.description != blank -%}
+  <div class="product-description rte" {{ block.shopify_attributes }}>
+    {{ product.description }}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:names.product_description",
+  "tag": null,
+  "settings": []
+}
+{% endschema %}

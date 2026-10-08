@@ -1,0 +1,112 @@
+{%- doc -%}
+  Image theme block with a fixed or natural aspect ratio and an optional link.
+{%- enddoc -%}
+
+{%- liquid
+  if block.settings.ratio == 'natural' and block.settings.image != blank
+    assign ratio_style = 'aspect-ratio: ' | append: block.settings.image.aspect_ratio
+  else
+    assign ratio_style = ''
+  endif
+-%}
+
+{%- capture image_markup -%}
+  {%- render 'image',
+    image: block.settings.image,
+    sizes: '(min-width: 990px) 50vw, 100vw',
+    placeholder: 'lifestyle-1'
+  -%}
+{%- endcapture -%}
+
+{%- if block.settings.link != blank -%}
+  <a
+    class="block-image media media--{{ block.settings.ratio }}{% unless block.settings.rounded %} block-image--square{% endunless %}"
+    href="{{ block.settings.link }}"
+    style="{{ ratio_style }}"
+    {{ block.shopify_attributes }}
+  >
+    {{ image_markup }}
+  </a>
+{%- else -%}
+  <div
+    class="block-image media media--{{ block.settings.ratio }}{% unless block.settings.rounded %} block-image--square{% endunless %}"
+    style="{{ ratio_style }}"
+    {{ block.shopify_attributes }}
+  >
+    {{ image_markup }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .block-image {
+    display: block;
+    width: 100%;
+  }
+
+  .block-image--square {
+    border-radius: 0;
+  }
+
+  .media--natural:not([style*='aspect-ratio']) {
+    aspect-ratio: 4 / 3;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.image",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "select",
+      "id": "ratio",
+      "label": "t:settings.image_ratio",
+      "options": [
+        {
+          "value": "natural",
+          "label": "t:options.image_ratio.natural"
+        },
+        {
+          "value": "square",
+          "label": "t:options.image_ratio.square"
+        },
+        {
+          "value": "portrait",
+          "label": "t:options.image_ratio.portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "t:options.image_ratio.landscape"
+        },
+        {
+          "value": "wide",
+          "label": "t:options.image_ratio.wide"
+        }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "checkbox",
+      "id": "rounded",
+      "label": "t:settings.rounded_corners",
+      "default": true
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.image",
+      "category": "t:categories.media"
+    }
+  ]
+}
+{% endschema %}

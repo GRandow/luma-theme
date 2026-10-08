@@ -1,0 +1,138 @@
+{%- comment -%}
+  Product recommendations, loaded after the page: product-recommendations.js
+  requests this same section from Shopify's recommendations endpoint, where
+  `recommendations.performed?` is true and the products are filled in. On the
+  first render the section is an empty placeholder, so recommendations never
+  delay the product page.
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = section.settings.columns_desktop
+  assign card_sizes = '(min-width: 990px) calc(100vw / ' | append: columns | append: '), (min-width: 750px) 33vw, 50vw'
+-%}
+
+<script src="{{ 'product-recommendations.js' | asset_url }}" type="module"></script>
+
+<product-recommendations
+  class="section color-{{ section.settings.color_scheme }}"
+  data-url="{{ routes.product_recommendations_url }}"
+  data-product-id="{{ product.id }}"
+  data-section-id="{{ section.id }}"
+  data-limit="{{ section.settings.products_to_show }}"
+  data-intent="{{ section.settings.intent }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+    <div class="page-width">
+      {%- if section.settings.heading != blank -%}
+        <div class="section-heading">
+          <h2>{{ section.settings.heading }}</h2>
+        </div>
+      {%- endif -%}
+      <ul class="grid" role="list" style="--columns-desktop: {{ columns }};">
+        {%- for recommendation in recommendations.products -%}
+          <li>{% render 'product-card', product: recommendation, sizes: card_sizes %}</li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  {%- endif -%}
+</product-recommendations>
+
+{% stylesheet %}
+  product-recommendations {
+    display: block;
+  }
+
+  product-recommendations:empty {
+    padding: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_recommendations",
+  "class": "section-wrapper",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "t:defaults.recommendations_heading"
+    },
+    {
+      "type": "select",
+      "id": "intent",
+      "label": "t:settings.recommendation_intent",
+      "info": "t:info.recommendation_intent",
+      "options": [
+        {
+          "value": "related",
+          "label": "t:options.recommendation_intent.related"
+        },
+        {
+          "value": "complementary",
+          "label": "t:options.recommendation_intent.complementary"
+        }
+      ],
+      "default": "related"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "t:settings.products_to_show",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:settings.columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.product_recommendations",
+      "category": "t:categories.products"
+    }
+  ]
+}
+{% endschema %}

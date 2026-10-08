@@ -1,0 +1,207 @@
+{
+  "accessibility": {
+    "skip_to_content": "Skip to content"
+  },
+  "general": {
+    "close": "Close",
+    "continue_shopping": "Continue shopping",
+    "social_link": "Follow us on {{ network }}",
+    "meta": {
+      "tagged": "tagged \"{{ tags }}\"",
+      "page": "Page {{ page }}"
+    },
+    "breadcrumbs": {
+      "label": "Breadcrumbs",
+      "home": "Home"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page"
+    }
+  },
+  "header": {
+    "menu": "Menu",
+    "main_menu": "Main menu",
+    "open_menu": "Open menu",
+    "view_all": "All {{ title }}",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart"
+  },
+  "footer": {
+    "payment_methods": "Payment methods"
+  },
+  "localization": {
+    "country_label": "Country/region",
+    "language_label": "Language",
+    "update": "Update"
+  },
+  "newsletter": {
+    "email_label": "Email",
+    "email_placeholder": "you@example.com",
+    "subscribe": "Subscribe",
+    "success": "Thanks for subscribing.",
+    "consent": "By subscribing you agree to receive marketing emails. Unsubscribe anytime."
+  },
+  "search": {
+    "title": "Search",
+    "label": "Search the store",
+    "placeholder": "Search products, collections…",
+    "submit": "Search",
+    "suggestions": "Suggestions",
+    "products": "Products",
+    "collections_and_pages": "Collections and pages",
+    "page": "Page",
+    "article": "Article",
+    "search_for": "Search for “{{ terms }}”",
+    "no_results": "No results for “{{ terms }}”.",
+    "no_results_hint": "Check the spelling or try a more general word.",
+    "results_count": {
+      "one": "{{ count }} result for “{{ terms }}”",
+      "other": "{{ count }} results for “{{ terms }}”"
+    }
+  },
+  "products": {
+    "add_to_cart": "Add to cart",
+    "sold_out": "Sold out",
+    "unavailable": "Unavailable",
+    "value_unavailable": "Unavailable",
+    "sale": "Sale",
+    "sale_price": "Sale price",
+    "regular_price": "Regular price",
+    "unit_price": "Unit price",
+    "price_from_html": "From {{ price }}",
+    "you_save_html": "Save {{ amount }}",
+    "taxes_included": "Taxes included.",
+    "taxes_excluded": "Taxes calculated at checkout.",
+    "shipping_policy_html": "<a href=\"{{ link }}\">Shipping</a> calculated at checkout.",
+    "variant": "Variant",
+    "quantity": "Quantity",
+    "quantity_decrease": "Decrease quantity for {{ product }}",
+    "quantity_increase": "Increase quantity for {{ product }}",
+    "quantity_increments": "Sold in multiples of {{ increment }}.",
+    "quantity_minimum": "Minimum of {{ minimum }}.",
+    "quantity_maximum": "Maximum of {{ maximum }}.",
+    "in_stock": "In stock",
+    "backorder": "Available to order, ships when back in stock",
+    "low_stock": {
+      "one": "Only {{ count }} left",
+      "other": "Only {{ count }} left"
+    },
+    "gallery": "Product media",
+    "show_media": "Show media {{ number }} of {{ total }}",
+    "materials_setup_hint": "Materials appear here once the product has a custom.materials metafield that lists material metaobjects. The README explains the setup."
+  },
+  "collections": {
+    "all_collections": "Collections",
+    "filters": "Filters",
+    "filters_updated": "Results updated",
+    "apply_filters": "Apply filters",
+    "apply_sort": "Sort",
+    "sort_by": "Sort by",
+    "clear_all": "Clear all",
+    "remove_filter": "Remove filter",
+    "price_min": "From",
+    "price_max": "To",
+    "price_highest_html": "The highest price is {{ price }}",
+    "no_matches": "No products match these filters.",
+    "empty": "This collection is empty for now.",
+    "product_count": {
+      "one": "{{ count }} product",
+      "other": "{{ count }} products"
+    },
+    "show_results": {
+      "one": "Show {{ count }} result",
+      "other": "Show {{ count }} results"
+    }
+  },
+  "cart": {
+    "title": "Your bag",
+    "empty": "Your bag is empty",
+    "empty_hint": "Good things take a moment to find.",
+    "error": "Something went wrong with your bag. Please try again.",
+    "added": "Added to your bag",
+    "updated": "Bag updated",
+    "update": "Update",
+    "summary": "Order summary",
+    "estimated_total": "Estimated total",
+    "taxes_included": "Taxes included. Shipping and discounts calculated at checkout.",
+    "taxes_at_checkout": "Taxes, shipping and discounts calculated at checkout.",
+    "checkout": "Check out",
+    "view_cart": "View bag",
+    "note_label": "Add a note to your order",
+    "note_placeholder": "Gift message, delivery instructions…",
+    "quantity_for": "Quantity for {{ product }}",
+    "remove_item": "Remove {{ product }}",
+    "free_shipping_remaining_html": "You're <strong>{{ amount }}</strong> away from free shipping.",
+    "free_shipping_unlocked": "You've unlocked free shipping.",
+    "free_shipping_progress": "Progress towards free shipping"
+  },
+  "blogs": {
+    "tags_label": "Article topics",
+    "all_articles": "All",
+    "no_articles": "No articles yet.",
+    "by_author": "by {{ author }}",
+    "comments_count": {
+      "one": "{{ count }} comment",
+      "other": "{{ count }} comments"
+    },
+    "leave_comment": "Leave a comment",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "post_comment": "Post comment",
+    "moderated_notice": "Comments are reviewed before they appear.",
+    "comment_moderated": "Thanks! Your comment will appear once it has been reviewed.",
+    "comment_posted": "Thanks! Your comment has been posted."
+  },
+  "sections": {
+    "announcement": {
+      "label": "Announcements",
+      "previous": "Previous announcement",
+      "next": "Next announcement",
+      "scheduled": "Not live today"
+    },
+    "featured_collection": {
+      "view_all": "Shop all",
+      "placeholder_title": "Product name"
+    },
+    "collection_list": {
+      "placeholder_title": "Collection",
+      "products_count": {
+        "one": "{{ count }} product",
+        "other": "{{ count }} products"
+      }
+    },
+    "material": {
+      "eyebrow": "Material",
+      "care": "Care",
+      "products": "Made with {{ material }}"
+    }
+  },
+  "not_found": {
+    "title": "This page wandered off",
+    "text": "The page you are looking for does not exist or has moved."
+  },
+  "password": {
+    "notify_me": "Notify me",
+    "enter_with_password": "Have the password?",
+    "password_label": "Password",
+    "enter": "Enter",
+    "wrong_password": "That password is not right. Please try again.",
+    "admin_link_html": "Are you the store owner? <a href=\"{{ link }}\">Log in here</a>."
+  },
+  "gift_card": {
+    "title_html": "Your {{ value }} gift card for {{ shop }}",
+    "heading_html": "Here is your {{ value }} gift card",
+    "code_label": "Gift card code",
+    "expired": "Expired",
+    "disabled": "Disabled",
+    "expires_on": "Expires on {{ date }}",
+    "add_to_wallet": "Add to Apple Wallet",
+    "print": "Print",
+    "shop_link": "Start shopping"
+  }
+}

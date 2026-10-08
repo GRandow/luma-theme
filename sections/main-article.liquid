@@ -1,0 +1,234 @@
+{%- comment -%}
+  Blog article: title, date and author, image, content, tags and, when the
+  blog accepts them, comments with Shopify's `new_comment` form (moderated
+  comments show a confirmation instead of appearing straight away).
+{%- endcomment -%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <article class="page-width page-width--narrow article">
+    {%- render 'breadcrumbs' -%}
+
+    <header class="article__header">
+      <h1>{{ article.title | escape }}</h1>
+      <p class="text-muted">
+        {{ article.published_at | time_tag: format: 'date' }}
+        {%- if section.settings.show_author and article.author != blank %}
+          · {{ 'blogs.by_author' | t: author: article.author }}
+        {%- endif -%}
+      </p>
+    </header>
+
+    {%- if article.image -%}
+      <div class="article__image media media--wide">
+        {%- render 'image', image: article.image, sizes: '(min-width: 990px) 48rem, 100vw', priority: true -%}
+      </div>
+    {%- endif -%}
+
+    <div class="rte article__content">{{ article.content }}</div>
+
+    {%- if article.tags.size > 0 -%}
+      <ul class="article__tags" role="list">
+        {%- for tag in article.tags -%}
+          <li>
+            <a class="blog-tag" href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag | escape }}</a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if blog.comments_enabled? -%}
+      <section class="article__comments" aria-labelledby="Comments-{{ section.id }}">
+        <h2 id="Comments-{{ section.id }}" class="h3">
+          {{- 'blogs.comments_count' | t: count: article.comments_count -}}
+        </h2>
+
+        {%- paginate article.comments by 10 -%}
+          <ol class="comments" role="list">
+            {%- for comment in article.comments -%}
+              <li class="comment">
+                <div class="rte">{{ comment.content }}</div>
+                <p class="text-small text-muted">
+                  {{ comment.author | escape }} · {{ comment.created_at | time_tag: format: 'date' }}
+                </p>
+              </li>
+            {%- endfor -%}
+          </ol>
+          {%- render 'pagination', paginate: paginate -%}
+        {%- endpaginate -%}
+
+        {%- form 'new_comment', article, class: 'comment-form' -%}
+          <h3 class="h4">{{ 'blogs.leave_comment' | t }}</h3>
+          {%- if form.posted_successfully? -%}
+            <p class="form-message form-message--success" role="status">
+              {%- if blog.moderated? -%}
+                {{ 'blogs.comment_moderated' | t }}
+              {%- else -%}
+                {{ 'blogs.comment_posted' | t }}
+              {%- endif -%}
+            </p>
+          {%- endif -%}
+          {%- if form.errors -%}
+            <div class="form-message form-message--error" role="alert">
+              {%- render 'icon', name: 'alert' -%}
+              <ul role="list">
+                {%- for field in form.errors -%}
+                  <li>
+                    {{ form.errors.translated_fields[field] | capitalize }}
+                    {{ form.errors.messages[field] }}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
+          <div class="comment-form__row">
+            <div class="field">
+              <label class="field__label" for="CommentAuthor">{{ 'blogs.name' | t }}</label>
+              <input
+                id="CommentAuthor"
+                class="input"
+                type="text"
+                name="comment[author]"
+                value="{{ form.author }}"
+                autocomplete="name"
+                required
+              >
+            </div>
+            <div class="field">
+              <label class="field__label" for="CommentEmail">{{ 'blogs.email' | t }}</label>
+              <input
+                id="CommentEmail"
+                class="input"
+                type="email"
+                name="comment[email]"
+                value="{{ form.email }}"
+                autocomplete="email"
+                required
+              >
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="CommentBody">{{ 'blogs.message' | t }}</label>
+            <textarea id="CommentBody" class="textarea" name="comment[body]" required>{{ form.body }}</textarea>
+          </div>
+          {%- if blog.moderated? -%}
+            <p class="text-small text-muted">{{ 'blogs.moderated_notice' | t }}</p>
+          {%- endif -%}
+          <button type="submit" class="button">{{ 'blogs.post_comment' | t }}</button>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+  </article>
+</div>
+
+{% stylesheet %}
+  .article > * + * {
+    margin-top: 2rem;
+  }
+
+  .article__header > * + * {
+    margin-top: 0.75rem;
+  }
+
+  .article__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .blog-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    text-decoration: none;
+  }
+
+  .article__comments {
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .article__comments > * + * {
+    margin-top: 1.5rem;
+  }
+
+  .comments {
+    display: grid;
+    gap: 1.25rem;
+    padding: 0;
+  }
+
+  .comment {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .comment-form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .comment-form__row {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 750px) {
+    .comment-form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .comment-form .button {
+    justify-self: start;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.article",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:settings.show_author",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

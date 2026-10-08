@@ -1,0 +1,123 @@
+{%- layout none -%}
+
+{%- comment -%}
+  Gift card page (the link in the gift card email): balance, code, QR code
+  for in-store use, Apple Wallet and printing. It has no theme layout, so its
+  few styles are inline.
+{%- endcomment -%}
+
+{%- liquid
+  assign formatted_balance = gift_card.balance | money
+  assign formatted_initial_value = gift_card.initial_value | money
+  assign plain_initial_value = formatted_initial_value | strip_html
+  assign expiry_date = gift_card.expires_on | date: format: 'date'
+-%}
+
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>{{ 'gift_card.title_html' | t: value: plain_initial_value, shop: shop.name }}</title>
+    {%- render 'css-variables' -%}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer></script>
+    <style>
+      .gift-card {
+        display: grid;
+        justify-items: center;
+        gap: 1.5rem;
+        padding-block: 3rem;
+        text-align: center;
+      }
+      .gift-card__card {
+        display: grid;
+        justify-items: center;
+        gap: 0.75rem;
+        width: min(100%, 26rem);
+        padding: 2rem;
+        border-radius: var(--radius);
+        background: var(--color-surface);
+        box-shadow: 0 18px 45px -28px rgb(29 30 25 / 0.3);
+      }
+      .gift-card__balance {
+        font-family: var(--font-heading-family);
+        font-size: 2.75rem;
+        font-weight: var(--font-heading-weight);
+        letter-spacing: -0.04em;
+      }
+      .gift-card__code code {
+        font-size: 1.25rem;
+        letter-spacing: 0.08em;
+      }
+      .gift-card__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+      @media print {
+        .gift-card__actions {
+          display: none;
+        }
+      }
+    </style>
+    {{ content_for_header }}
+  </head>
+
+  <body class="template-gift-card">
+    <main class="gift-card page-width page-width--narrow">
+      <p class="logo">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span>{{ shop.name | escape }}</span>
+      </p>
+
+      <h1 class="h2">{{ 'gift_card.heading_html' | t: value: formatted_initial_value }}</h1>
+
+      <div class="gift-card__card">
+        <p class="gift-card__balance">{{ formatted_balance }}</p>
+        {%- if gift_card.expired -%}
+          <p class="badge badge--sold-out">{{ 'gift_card.expired' | t }}</p>
+        {%- elsif gift_card.expires_on -%}
+          <p class="text-small text-muted">
+            {{ 'gift_card.expires_on' | t: date: expiry_date }}
+          </p>
+        {%- endif -%}
+        {%- unless gift_card.enabled -%}
+          <p class="badge badge--sold-out">{{ 'gift_card.disabled' | t }}</p>
+        {%- endunless -%}
+
+        <p class="gift-card__code">
+          <span class="visually-hidden">{{ 'gift_card.code_label' | t }}</span>
+          <code>{{ gift_card.code | format_code }}</code>
+        </p>
+        <div id="GiftCardQrCode" class="gift-card__qr" data-identifier="{{ gift_card.qr_identifier }}"></div>
+      </div>
+
+      <div class="gift-card__actions">
+        {%- if gift_card.pass_url -%}
+          <a class="button button--secondary" href="{{ gift_card.pass_url }}">{{ 'gift_card.add_to_wallet' | t }}</a>
+        {%- endif -%}
+        <button type="button" class="button button--secondary" onclick="window.print();">
+          {{- 'gift_card.print' | t -}}
+        </button>
+        <a class="button" href="{{ shop.url }}">{{ 'gift_card.shop_link' | t }}</a>
+      </div>
+    </main>
+
+    <script>
+      // Shopify's QR code library loads deferred, so it is ready by DOMContentLoaded.
+      document.addEventListener('DOMContentLoaded', () => {
+        const target = document.getElementById('GiftCardQrCode');
+        if (!window.QRCode || !target) return;
+        new QRCode(target, {
+          text: target.dataset.identifier,
+          width: 120,
+          height: 120,
+          correctLevel: QRCode.CorrectLevel.Q,
+        });
+      });
+    </script>
+  </body>
+</html>

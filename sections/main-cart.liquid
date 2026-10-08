@@ -1,0 +1,128 @@
+{%- comment -%}
+  Cart page. The lines form posts to /cart (`updates[]`, `note`, `checkout`),
+  so the page works without JavaScript; with it, cart.js changes one line at
+  a time and re-renders this section in the same Cart API response.
+{%- endcomment -%}
+
+<script src="{{ 'cart.js' | asset_url }}" type="module"></script>
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <cart-section class="page-width" data-cart-section="{{ section.id }}">
+    <div data-cart-content data-item-count="{{ cart.item_count }}">
+      <h1 class="cart-page__title" tabindex="-1">{{ 'cart.title' | t }}</h1>
+
+      {%- if cart.item_count > 0 -%}
+        <div class="cart-page">
+          <form id="CartForm" class="cart-page__lines" action="{{ routes.cart_url }}" method="post" novalidate>
+            <cart-items>
+              <ul class="cart-lines" role="list">
+                {%- for item in cart.items -%}
+                  {%- render 'cart-line-item', item: item, id_prefix: 'CartPage', index: forloop.index -%}
+                {%- endfor -%}
+              </ul>
+            </cart-items>
+            <noscript>
+              <button type="submit" class="button button--secondary">{{ 'cart.update' | t }}</button>
+            </noscript>
+          </form>
+
+          <aside class="cart-page__summary" aria-label="{{ 'cart.summary' | t }}">
+            {%- render 'free-shipping-bar' -%}
+            {%- render 'cart-summary', form_id: 'CartForm', id_prefix: 'CartPage', show_accelerated: true -%}
+          </aside>
+        </div>
+      {%- else -%}
+        <div class="cart-empty cart-page__empty">
+          <p class="h3">{{ 'cart.empty' | t }}</p>
+          <p class="text-muted">{{ 'cart.empty_hint' | t }}</p>
+          <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </cart-section>
+</div>
+
+{% stylesheet %}
+  cart-section {
+    display: block;
+  }
+
+  .cart-page__title {
+    margin-bottom: 2rem;
+  }
+
+  .cart-page {
+    display: grid;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 990px) {
+    .cart-page {
+      grid-template-columns: minmax(0, 1fr) 24rem;
+      gap: 4rem;
+    }
+  }
+
+  .cart-page__summary {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: 0 18px 45px -28px rgb(29 30 25 / 0.3);
+  }
+
+  @media (min-width: 990px) {
+    .cart-page__summary {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  .cart-page__empty {
+    padding-block: 3rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.cart_page",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

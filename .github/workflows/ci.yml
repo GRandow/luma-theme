@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Theme Check, formatting, lint, contrast
+    runs-on: ubuntu-latest
+    env:
+      SHOPIFY_CLI_NO_ANALYTICS: '1'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Theme Check
+        run: npx --yes @shopify/cli@4.9.0 theme check --fail-level suggestion
+
+      - name: Prettier
+        run: npm run format:check
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Color contrast (WCAG AA)
+        run: npm run contrast

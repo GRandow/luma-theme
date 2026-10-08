@@ -1,0 +1,67 @@
+{%- doc -%}
+  Price with sale and unit price. Given a variant it shows that variant's
+  price; given only a product it shows the lowest price ("From $20" when
+  variants differ). Hidden labels tell screen readers which number is the
+  sale price and which the regular one.
+
+  @param {product} product - The product
+  @param {variant} [variant] - A specific variant; omit for the product's lowest price
+  @param {string} [class] - Extra classes, e.g. `price--large`
+
+  @example
+  {% render 'price', product: product %}
+  {% render 'price', product: product, variant: product.selected_or_first_available_variant, class: 'price--large' %}
+{%- enddoc -%}
+
+{%- liquid
+  if variant
+    assign target = variant
+    assign price = variant.price
+    assign compare_at_price = variant.compare_at_price
+    assign show_from = false
+  else
+    assign target = product.selected_or_first_available_variant
+    assign price = product.price
+    assign compare_at_price = product.compare_at_price
+    assign show_from = product.price_varies
+  endif
+
+  assign on_sale = false
+  if compare_at_price > price
+    assign on_sale = true
+  endif
+
+  assign formatted_price = price | money
+-%}
+
+<div class="price {{ class }}">
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.sale_price' | t }}</span>
+  {%- endif -%}
+  <span class="price__current">
+    {%- if show_from -%}
+      {{ 'products.price_from_html' | t: price: formatted_price }}
+    {%- else -%}
+      {{ formatted_price }}
+    {%- endif -%}
+  </span>
+
+  {%- if on_sale -%}
+    <span class="visually-hidden">{{ 'products.regular_price' | t }}</span>
+    <s class="price__compare">{{ compare_at_price | money }}</s>
+  {%- endif -%}
+
+  {%- if target.unit_price_measurement -%}
+    {%- liquid
+      assign unit = target.unit_price_measurement
+      assign reference = unit.reference_unit
+      if unit.reference_value != 1
+        assign reference = unit.reference_value | append: reference
+      endif
+    -%}
+    <span class="price__unit">
+      <span class="visually-hidden">{{ 'products.unit_price' | t }}</span>
+      {{- target.unit_price | money }}/{{ reference -}}
+    </span>
+  {%- endif -%}
+</div>

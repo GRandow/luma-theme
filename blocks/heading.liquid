@@ -1,0 +1,104 @@
+{%- doc -%}
+  Heading theme block. The HTML tag and the visual size are separate
+  settings, so a heading can look large while staying an `h2` and the page
+  keeps one `h1` and a logical outline wherever the block is placed.
+{%- enddoc -%}
+
+<{{ block.settings.tag }}
+  class="block-heading {{ block.settings.size }}"
+  style="--text-align: {{ block.settings.alignment }};"
+  {{ block.shopify_attributes }}
+>
+  {{- block.settings.heading -}}
+</{{ block.settings.tag }}>
+
+{% stylesheet %}
+  .block-heading {
+    text-align: var(--text-align);
+  }
+
+  .block-heading em {
+    font-style: normal;
+    color: var(--color-accent);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "info": "t:info.heading_emphasis",
+      "default": "t:defaults.heading"
+    },
+    {
+      "type": "select",
+      "id": "tag",
+      "label": "t:settings.heading_tag",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        },
+        {
+          "value": "p",
+          "label": "t:options.paragraph"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:settings.size",
+      "options": [
+        {
+          "value": "h0",
+          "label": "t:options.size.display"
+        },
+        {
+          "value": "h1",
+          "label": "t:options.size.extra_large"
+        },
+        {
+          "value": "h2",
+          "label": "t:options.size.large"
+        },
+        {
+          "value": "h3",
+          "label": "t:options.size.medium"
+        },
+        {
+          "value": "h4",
+          "label": "t:options.size.small"
+        }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "default": "left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.heading",
+      "category": "t:categories.text"
+    }
+  ]
+}
+{% endschema %}

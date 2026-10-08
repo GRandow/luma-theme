@@ -1,0 +1,94 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "current": {
+    "logo_width": 110,
+    "type_brand_fonts": true,
+    "type_heading_font": "inter_n7",
+    "type_body_font": "inter_n4",
+    "type_heading_scale": 100,
+    "page_width": "80rem",
+    "page_margin": 16,
+    "section_spacing": 72,
+    "corner_radius": 24,
+    "button_shape": "pill",
+    "card_image_ratio": "square",
+    "card_show_secondary_image": true,
+    "card_show_vendor": false,
+    "card_show_swatches": true,
+    "cart_type": "drawer",
+    "cart_show_note": false,
+    "free_shipping_threshold": 100,
+    "predictive_search_enabled": true,
+    "predictive_search_show_price": true,
+    "color_schemes": {
+      "scheme-1": {
+        "settings": {
+          "background": "#F9F8F5",
+          "surface": "#FFFFFF",
+          "text": "#20201D",
+          "text_muted": "#6D6B61",
+          "accent": "#46713A",
+          "button": "#11110F",
+          "button_label": "#FFFFFF",
+          "secondary_button_label": "#11110F"
+        }
+      },
+      "scheme-2": {
+        "settings": {
+          "background": "#F4F0E8",
+          "surface": "#FFFFFF",
+          "text": "#20201D",
+          "text_muted": "#66645A",
+          "accent": "#395A31",
+          "button": "#11110F",
+          "button_label": "#FFFFFF",
+          "secondary_button_label": "#11110F"
+        }
+      },
+      "scheme-3": {
+        "settings": {
+          "background": "#11110F",
+          "surface": "#20201D",
+          "text": "#EFEFEB",
+          "text_muted": "#A6A59A",
+          "accent": "#A3C797",
+          "button": "#FFFFFF",
+          "button_label": "#11110F",
+          "secondary_button_label": "#FFFFFF"
+        }
+      },
+      "scheme-4": {
+        "settings": {
+          "background": "#DCE9D7",
+          "surface": "#FFFFFF",
+          "text": "#11110F",
+          "text_muted": "#484740",
+          "accent": "#304929",
+          "button": "#11110F",
+          "button_label": "#FFFFFF",
+          "secondary_button_label": "#11110F"
+        }
+      },
+      "scheme-5": {
+        "settings": {
+          "background": "#283D24",
+          "surface": "#304929",
+          "text": "#FFFFFF",
+          "text_muted": "#E4EEE0",
+          "accent": "#C9DEC2",
+          "button": "#FFFFFF",
+          "button_label": "#11110F",
+          "secondary_button_label": "#FFFFFF"
+        }
+      }
+    }
+  }
+}

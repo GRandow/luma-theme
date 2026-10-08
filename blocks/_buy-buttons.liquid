@@ -1,0 +1,147 @@
+{%- doc -%}
+  Product form: quantity (honoring B2B quantity rules), add to cart and the
+  dynamic checkout buttons. product-form.js submits it through the Ajax Cart
+  API and opens the cart drawer; without JavaScript it posts to /cart, and a
+  <noscript> select lets shoppers pick any variant.
+{%- enddoc -%}
+
+{%- liquid
+  assign product = closest.product
+  assign variant = product.selected_or_first_available_variant
+  assign form_id = 'ProductForm-' | append: block.id
+  assign rule = variant.quantity_rule
+-%}
+
+<div class="buy-buttons" data-product-update="buy-buttons-{{ block.id }}" {{ block.shopify_attributes }}>
+  <product-form>
+    {%- form 'product', product, id: form_id, class: 'product-form', novalidate: 'novalidate' -%}
+      <input type="hidden" name="id" value="{{ variant.id }}">
+      <noscript>
+        <div class="field">
+          <label class="field__label" for="Variant-{{ block.id }}">{{ 'products.variant' | t }}</label>
+          <select id="Variant-{{ block.id }}" class="select" name="id">
+            {%- for product_variant in product.variants -%}
+              <option
+                value="{{ product_variant.id }}"
+                {% if product_variant == variant %}
+                  selected
+                {% endif %}
+                {% unless product_variant.available %}
+                  disabled
+                {% endunless %}
+              >
+                {{ product_variant.title }} – {{ product_variant.price | money | strip_html }}
+              </option>
+            {%- endfor -%}
+          </select>
+        </div>
+      </noscript>
+
+      {%- if block.settings.show_quantity -%}
+        <div class="field product-form__quantity">
+          <label class="field__label" for="Quantity-{{ block.id }}">{{ 'products.quantity' | t }}</label>
+          <quantity-input class="quantity">
+            <button type="button" class="quantity__button" name="minus">
+              <span class="visually-hidden">{{ 'products.quantity_decrease' | t: product: product.title }}</span>
+              {%- render 'icon', name: 'minus' -%}
+            </button>
+            <input
+              id="Quantity-{{ block.id }}"
+              class="quantity__input"
+              type="number"
+              name="quantity"
+              value="{{ rule.min }}"
+              min="{{ rule.min }}"
+              step="{{ rule.increment }}"
+              {% if rule.max %}
+                max="{{ rule.max }}"
+              {% endif %}
+              inputmode="numeric"
+            >
+            <button type="button" class="quantity__button" name="plus">
+              <span class="visually-hidden">{{ 'products.quantity_increase' | t: product: product.title }}</span>
+              {%- render 'icon', name: 'plus' -%}
+            </button>
+          </quantity-input>
+          {%- if rule.min > 1 or rule.increment > 1 or rule.max -%}
+            <p class="text-small text-muted">
+              {%- if rule.increment > 1 -%}
+                {{ 'products.quantity_increments' | t: increment: rule.increment }}
+              {%- endif -%}
+              {%- if rule.min > 1 %} {{ 'products.quantity_minimum' | t: minimum: rule.min }}{% endif -%}
+              {%- if rule.max %} {{ 'products.quantity_maximum' | t: maximum: rule.max }}{% endif -%}
+            </p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="product-form__buttons">
+        <button
+          type="submit"
+          name="add"
+          class="button button--large button--full{% if block.settings.show_dynamic_checkout %} button--secondary{% endif %}"
+          {% unless variant.available %}
+            disabled
+          {% endunless %}
+        >
+          {%- if variant == blank -%}
+            {{ 'products.unavailable' | t }}
+          {%- elsif variant.available -%}
+            {{ 'products.add_to_cart' | t }}
+          {%- else -%}
+            {{ 'products.sold_out' | t }}
+          {%- endif -%}
+        </button>
+
+        {%- if block.settings.show_dynamic_checkout and variant.available -%}
+          {{ form | payment_button }}
+        {%- endif -%}
+      </div>
+
+      <p class="form-message form-message--error" role="alert" data-form-error hidden></p>
+    {%- endform -%}
+  </product-form>
+</div>
+
+{% stylesheet %}
+  .product-form {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .product-form__quantity {
+    justify-items: start;
+  }
+
+  .product-form__buttons {
+    display: grid;
+    gap: 0.625rem;
+  }
+
+  .shopify-payment-button__button {
+    min-height: 3.25rem;
+    border-radius: var(--button-radius) !important;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.buy_buttons",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "t:settings.show_quantity",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dynamic_checkout",
+      "label": "t:settings.show_dynamic_checkout",
+      "info": "t:info.dynamic_checkout",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

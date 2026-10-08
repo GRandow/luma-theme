@@ -1,0 +1,69 @@
+{%- doc -%}
+  Price of the selected variant, with the tax and shipping note. Updated
+  through `data-product-update` when the variant changes.
+{%- enddoc -%}
+
+{%- liquid
+  assign product = closest.product
+  assign variant = product.selected_or_first_available_variant
+-%}
+
+<div class="product-price" data-product-update="price-{{ block.id }}" {{ block.shopify_attributes }}>
+  {%- render 'price', product: product, variant: variant, class: 'price--large' -%}
+
+  {%- if variant.compare_at_price > variant.price and block.settings.show_savings -%}
+    {%- assign savings = variant.compare_at_price | minus: variant.price | money -%}
+    <span class="badge badge--sale">{{ 'products.you_save_html' | t: amount: savings }}</span>
+  {%- endif -%}
+
+  {%- if block.settings.show_tax_note -%}
+    <p class="product-price__note text-small text-muted">
+      {%- if cart.taxes_included -%}
+        {{ 'products.taxes_included' | t }}
+      {%- else -%}
+        {{ 'products.taxes_excluded' | t }}
+      {%- endif -%}
+      {%- if shop.shipping_policy.body != blank %}
+        {{ 'products.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+      {%- endif -%}
+    </p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .product-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .product-price__note {
+    width: 100%;
+  }
+
+  .product-price__note a {
+    color: inherit;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_price",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_savings",
+      "label": "t:settings.show_savings",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tax_note",
+      "label": "t:settings.show_tax_note",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

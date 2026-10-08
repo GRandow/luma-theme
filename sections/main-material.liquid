@@ -1,0 +1,129 @@
+{%- comment -%}
+  Page for one `material` metaobject (templates/metaobject/material.json),
+  available once the metaobject definition has web pages turned on. Shows
+  the material's own fields and, from its optional `products` list field,
+  the products made with it.
+{%- endcomment -%}
+
+{%- liquid
+  assign material_image = metaobject.image.value.preview_image | default: metaobject.image.value
+  assign products = metaobject.products.value
+-%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <article class="material page-width">
+    <div class="material__intro">
+      <div class="material__text stack" style="--stack-gap: 1.25rem;">
+        <p class="eyebrow">{{ 'sections.material.eyebrow' | t }}</p>
+        <h1>{{ metaobject.name.value | escape }}</h1>
+        {%- if metaobject.description != blank -%}
+          <div class="rte text-lead">{{ metaobject.description | metafield_tag }}</div>
+        {%- endif -%}
+        {%- if metaobject.care.value != blank -%}
+          <div class="material__care">
+            <h2 class="h4">{{ 'sections.material.care' | t }}</h2>
+            <p class="text-muted">{{ metaobject.care.value | escape | newline_to_br }}</p>
+          </div>
+        {%- endif -%}
+      </div>
+      <div class="material__media media media--portrait">
+        {%- render 'image',
+          image: material_image,
+          sizes: '(min-width: 990px) 45vw, 100vw',
+          priority: true,
+          placeholder: 'lifestyle-1'
+        -%}
+      </div>
+    </div>
+
+    {%- if products != blank -%}
+      <section class="material__products" aria-labelledby="MaterialProducts-{{ section.id }}">
+        <h2 id="MaterialProducts-{{ section.id }}" class="section-heading">
+          {{- 'sections.material.products' | t: material: metaobject.name.value -}}
+        </h2>
+        <ul class="grid" role="list" style="--columns-desktop: 4;">
+          {%- for product in products limit: 8 -%}
+            <li>{% render 'product-card', product: product %}</li>
+          {%- endfor -%}
+        </ul>
+      </section>
+    {%- endif -%}
+  </article>
+</div>
+
+{% stylesheet %}
+  .material__intro {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  @media (min-width: 990px) {
+    .material__intro {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+    }
+  }
+
+  .material__care {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .material__care > * + * {
+    margin-top: 0.5rem;
+  }
+
+  .material__products {
+    margin-top: var(--section-spacing);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.material_page",
+  "class": "section-wrapper",
+  "enabled_on": {
+    "templates": ["metaobject"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:content.material_page"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,202 @@
+{%- doc -%}
+  Layout theme block that holds other theme blocks in a row or a column,
+  optionally as a card with its own color scheme. Groups can nest, which is
+  how a section composes rows of buttons, cards with text, and so on.
+{%- enddoc -%}
+
+<div
+  class="block-group block-group--{{ block.settings.direction }}{% if block.settings.card %} block-group--card{% endif %}{% if block.settings.use_color_scheme %} color-{{ block.settings.color_scheme }}{% endif %}"
+  style="
+    --gap: {{ block.settings.gap }}px;
+    --align: {{ block.settings.alignment }};
+    --vertical-align: {{ block.settings.vertical_alignment }};
+    --padding: {{ block.settings.padding }}px;
+  "
+  {{ block.shopify_attributes }}
+>
+  {%- content_for 'blocks' -%}
+</div>
+
+{% stylesheet %}
+  .block-group {
+    display: flex;
+    gap: var(--gap);
+    padding: var(--padding);
+    min-width: 0;
+  }
+
+  .block-group--column {
+    flex-direction: column;
+    align-items: var(--align);
+  }
+
+  .block-group--column > * {
+    max-width: 100%;
+  }
+
+  .block-group--row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: var(--align);
+    align-items: var(--vertical-align);
+  }
+
+  .block-group--card {
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: 0 18px 45px -28px rgb(29 30 25 / 0.3);
+  }
+
+  .block-group--card:not([class*='color-scheme-']) {
+    color: var(--color-text);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.group",
+  "tag": null,
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "t:settings.direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "t:options.direction.column"
+        },
+        {
+          "value": "row",
+          "label": "t:options.direction.row"
+        }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.alignment.start"
+        },
+        {
+          "value": "center",
+          "label": "t:options.alignment.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.alignment.end"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.alignment.space_between"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "t:settings.vertical_alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.alignment.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.alignment.middle"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.alignment.bottom"
+        }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.direction == 'row' }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding",
+      "label": "t:settings.padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "card",
+      "label": "t:settings.card_style",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "use_color_scheme",
+      "label": "t:settings.use_color_scheme",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1",
+      "visible_if": "{{ block.settings.use_color_scheme }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.column",
+      "category": "t:categories.layout",
+      "settings": {
+        "direction": "column"
+      }
+    },
+    {
+      "name": "t:names.row",
+      "category": "t:categories.layout",
+      "settings": {
+        "direction": "row",
+        "gap": 12
+      }
+    },
+    {
+      "name": "t:names.card",
+      "category": "t:categories.layout",
+      "settings": {
+        "direction": "column",
+        "card": true,
+        "padding": 32
+      },
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "size": "h3",
+            "tag": "h3"
+          }
+        },
+        "text": {
+          "type": "text"
+        }
+      },
+      "block_order": ["heading", "text"]
+    }
+  ]
+}
+{% endschema %}

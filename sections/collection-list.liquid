@@ -1,0 +1,180 @@
+{%- comment -%}
+  Collection list: cards for hand-picked collections. A collection without
+  its own image borrows the first product's photo.
+{%- endcomment -%}
+
+{%- liquid
+  assign collections_to_show = section.settings.collections
+  assign columns = section.settings.columns_desktop
+  assign card_sizes = '(min-width: 990px) calc(100vw / ' | append: columns | append: '), (min-width: 750px) 33vw, 50vw'
+-%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="page-width">
+    {%- if section.settings.heading != blank or section.settings.eyebrow != blank -%}
+      <div class="section-heading">
+        <div class="section-heading__text">
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2>{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.description != blank -%}
+            <div class="text-muted">{{ section.settings.description }}</div>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <ul class="grid collection-list" role="list" style="--columns-desktop: {{ columns }}; --columns-tablet: 3;">
+      {%- if collections_to_show != blank -%}
+        {%- for collection in collections_to_show limit: 12 -%}
+          {%- liquid
+            assign cover = collection.featured_image
+            if cover == blank
+              assign cover = collection.products.first.featured_media.preview_image
+            endif
+          -%}
+          <li>
+            <a class="collection-card" href="{{ collection.url }}">
+              <span class="collection-card__media media media--{{ section.settings.image_ratio }}">
+                {%- render 'image', image: cover, sizes: card_sizes, alt: '', placeholder: 'collection-1' -%}
+              </span>
+              <span class="collection-card__title">{{ collection.title | escape }}</span>
+              {%- if section.settings.show_count -%}
+                <span class="collection-card__count text-muted">
+                  {{- 'sections.collection_list.products_count' | t: count: collection.all_products_count -}}
+                </span>
+              {%- endif -%}
+            </a>
+          </li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..columns) -%}
+          {%- liquid
+            assign placeholder_index = i | modulo: 6 | plus: 1
+            assign placeholder_name = 'collection-' | append: placeholder_index
+          -%}
+          <li>
+            <div class="collection-card">
+              <span class="collection-card__media media media--{{ section.settings.image_ratio }}">
+                {{- placeholder_name | placeholder_svg_tag: 'placeholder-svg' -}}
+              </span>
+              <span class="collection-card__title">{{ 'sections.collection_list.placeholder_title' | t }}</span>
+            </div>
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:names.collection_list",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:settings.eyebrow",
+      "default": "t:defaults.collection_list_eyebrow"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "t:defaults.collection_list_heading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:settings.description"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "t:settings.collections",
+      "limit": 12
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:settings.columns_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:settings.image_ratio",
+      "options": [
+        {
+          "value": "square",
+          "label": "t:options.image_ratio.square"
+        },
+        {
+          "value": "portrait",
+          "label": "t:options.image_ratio.portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "t:options.image_ratio.landscape"
+        }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "t:settings.show_product_count",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-2"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.collection_list",
+      "category": "t:categories.collections"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,107 @@
+{%- doc -%}
+  Breadcrumb trail for product, collection, article and page templates, with
+  the matching schema.org BreadcrumbList. On a product reached through a
+  collection URL the trail includes that collection.
+
+  @example
+  {% render 'breadcrumbs' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign crumb_names = 'general.breadcrumbs.home' | t
+  assign crumb_urls = routes.root_url
+
+  case request.page_type
+    when 'product'
+      if collection
+        assign crumb_names = crumb_names | append: '||' | append: collection.title
+        assign crumb_urls = crumb_urls | append: '||' | append: collection.url
+      endif
+      assign crumb_names = crumb_names | append: '||' | append: product.title
+      assign crumb_urls = crumb_urls | append: '||' | append: product.url
+    when 'collection'
+      assign crumb_names = crumb_names | append: '||' | append: collection.title
+      assign crumb_urls = crumb_urls | append: '||' | append: collection.url
+    when 'article'
+      assign crumb_names = crumb_names | append: '||' | append: blog.title | append: '||' | append: article.title
+      assign crumb_urls = crumb_urls | append: '||' | append: blog.url | append: '||' | append: article.url
+    when 'page'
+      assign crumb_names = crumb_names | append: '||' | append: page.title
+      assign crumb_urls = crumb_urls | append: '||' | append: page.url
+  endcase
+
+  assign crumb_names = crumb_names | split: '||'
+  assign crumb_urls = crumb_urls | split: '||'
+-%}
+
+{%- if crumb_names.size > 1 -%}
+  <nav class="breadcrumbs" aria-label="{{ 'general.breadcrumbs.label' | t }}">
+    <ol class="breadcrumbs__list" role="list">
+      {%- for name in crumb_names -%}
+        <li class="breadcrumbs__item">
+          {%- if forloop.last -%}
+            <span aria-current="page">{{ name | escape }}</span>
+          {%- else -%}
+            <a href="{{ crumb_urls[forloop.index0] }}">{{ name | escape }}</a>
+            {%- render 'icon', name: 'chevron-right' -%}
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ol>
+  </nav>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {%- for name in crumb_names -%}
+          {
+            "@type": "ListItem",
+            "position": {{ forloop.index }},
+            "name": {{ name | json }},
+            "item": {{ request.origin | append: crumb_urls[forloop.index0] | json }}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .breadcrumbs {
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .breadcrumbs__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .breadcrumbs__item a {
+    text-decoration: none;
+  }
+
+  .breadcrumbs__item a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .breadcrumbs__item .icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .breadcrumbs [aria-current='page'] {
+    color: var(--color-text);
+  }
+{% endstylesheet %}

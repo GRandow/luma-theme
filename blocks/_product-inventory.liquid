@@ -1,0 +1,97 @@
+{%- doc -%}
+  Stock status of the selected variant: in stock, low stock ("Only 3 left")
+  or available to order. Exact counts are only shown under the low-stock
+  threshold, and only for variants whose inventory Shopify tracks.
+{%- enddoc -%}
+
+{%- liquid
+  assign variant = closest.product.selected_or_first_available_variant
+  assign status = ''
+  if variant and variant.inventory_management == 'shopify'
+    if variant.inventory_quantity > block.settings.threshold
+      assign status = 'in_stock'
+    elsif variant.inventory_quantity > 0
+      assign status = 'low_stock'
+    elsif variant.inventory_policy == 'continue'
+      assign status = 'backorder'
+    endif
+  elsif variant.available
+    assign status = 'in_stock'
+  endif
+-%}
+
+<div class="product-inventory" data-product-update="inventory-{{ block.id }}" {{ block.shopify_attributes }}>
+  {%- case status -%}
+    {%- when 'in_stock' -%}
+      {%- if block.settings.show_in_stock -%}
+        <p class="product-inventory__status product-inventory__status--in-stock">
+          <span class="product-inventory__dot" aria-hidden="true"></span>
+          {{- 'products.in_stock' | t -}}
+        </p>
+      {%- endif -%}
+    {%- when 'low_stock' -%}
+      <p class="product-inventory__status product-inventory__status--low">
+        <span class="product-inventory__dot" aria-hidden="true"></span>
+        {{- 'products.low_stock' | t: count: variant.inventory_quantity -}}
+      </p>
+    {%- when 'backorder' -%}
+      <p class="product-inventory__status product-inventory__status--backorder">
+        <span class="product-inventory__dot" aria-hidden="true"></span>
+        {{- 'products.backorder' | t -}}
+      </p>
+  {%- endcase -%}
+</div>
+
+{% stylesheet %}
+  .product-inventory:empty {
+    display: none;
+  }
+
+  .product-inventory__status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .product-inventory__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .product-inventory__status--in-stock .product-inventory__dot {
+    background: #3c8a3a;
+    box-shadow: 0 0 0 4px rgb(60 138 58 / 0.18);
+  }
+
+  .product-inventory__status--low .product-inventory__dot {
+    background: #c9701c;
+    box-shadow: 0 0 0 4px rgb(201 112 28 / 0.18);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_inventory",
+  "tag": null,
+  "settings": [
+    {
+      "type": "range",
+      "id": "threshold",
+      "label": "t:settings.low_stock_threshold",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "show_in_stock",
+      "label": "t:settings.show_in_stock",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

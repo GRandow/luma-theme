@@ -1,0 +1,27 @@
+{
+  "name": "luma-theme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Luma: an Online Store 2.0 Shopify theme written in Liquid, with theme blocks, storefront filtering, an Ajax cart and metaobject content.",
+  "license": "MIT",
+  "author": "Gabriel Randow",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "shopify theme dev",
+    "check": "shopify theme check --fail-level suggestion",
+    "lint": "eslint assets scripts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "contrast": "node scripts/check-contrast.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@shopify/prettier-plugin-liquid": "^1.11.2",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5"
+  }
+}

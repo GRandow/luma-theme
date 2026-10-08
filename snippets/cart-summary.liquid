@@ -1,0 +1,117 @@
+{%- doc -%}
+  Cart totals and checkout: order discounts, estimated total, tax note, an
+  optional order note and the checkout button. Shared by the drawer and the
+  cart page; the fields belong to that cart's form through the `form`
+  attribute, so "Check out" also submits any quantity typed without
+  JavaScript.
+
+  @param {string} form_id - The id of the cart form
+  @param {string} id_prefix - Prefix for element ids
+  @param {boolean} [show_view_cart] - Add a link to the cart page (drawer)
+  @param {boolean} [show_accelerated] - Show accelerated checkout buttons (cart page)
+
+  @example
+  {% render 'cart-summary', form_id: 'CartForm', id_prefix: 'CartPage', show_accelerated: true %}
+{%- enddoc -%}
+
+<div class="cart-summary">
+  {%- if cart.cart_level_discount_applications.size > 0 -%}
+    <ul class="cart-summary__discounts" role="list">
+      {%- for discount in cart.cart_level_discount_applications -%}
+        <li>
+          <span>
+            {%- render 'icon', name: 'gift' -%}
+            {{ discount.title | escape }}
+          </span>
+          <span>−{{ discount.total_allocated_amount | money }}</span>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+
+  <p class="cart-summary__total">
+    <span>{{ 'cart.estimated_total' | t }}</span>
+    <span>{{ cart.total_price | money_with_currency }}</span>
+  </p>
+  <p class="text-small text-muted">
+    {%- if cart.taxes_included -%}
+      {{ 'cart.taxes_included' | t }}
+    {%- else -%}
+      {{ 'cart.taxes_at_checkout' | t }}
+    {%- endif -%}
+  </p>
+
+  {%- if settings.cart_show_note -%}
+    <details
+      class="accordion cart-summary__note"
+      {% if cart.note != blank %}
+        open
+      {% endif %}
+    >
+      <summary class="accordion__summary">
+        {{- 'cart.note_label' | t -}}
+        {%- render 'icon', name: 'chevron-down' -%}
+      </summary>
+      <div class="accordion__content">
+        <label class="visually-hidden" for="{{ id_prefix }}-Note">{{ 'cart.note_label' | t }}</label>
+        <textarea
+          id="{{ id_prefix }}-Note"
+          class="textarea"
+          name="note"
+          form="{{ form_id }}"
+          placeholder="{{ 'cart.note_placeholder' | t }}"
+          data-cart-note
+        >{{ cart.note }}</textarea>
+      </div>
+    </details>
+  {%- endif -%}
+
+  <button type="submit" name="checkout" form="{{ form_id }}" class="button button--large button--full">
+    {{- 'cart.checkout' | t -}}
+  </button>
+
+  {%- if show_accelerated and additional_checkout_buttons -%}
+    <div class="cart-summary__accelerated">{{ content_for_additional_checkout_buttons }}</div>
+  {%- endif -%}
+
+  {%- if show_view_cart -%}
+    <a class="button button--link cart-summary__view" href="{{ routes.cart_url }}">{{ 'cart.view_cart' | t }}</a>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .cart-summary {
+    display: grid;
+    gap: 0.875rem;
+  }
+
+  .cart-summary__discounts {
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--color-accent);
+  }
+
+  .cart-summary__discounts li,
+  .cart-summary__discounts li > span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .cart-summary__total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.125rem;
+    font-weight: var(--font-body-weight-bold);
+  }
+
+  .cart-summary__note {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .cart-summary__view {
+    justify-self: center;
+  }
+{% endstylesheet %}

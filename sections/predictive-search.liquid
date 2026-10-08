@@ -1,0 +1,208 @@
+{%- comment -%}
+  Rendered only through the Section Rendering API, by predictive-search.js:
+  /search/suggest?q=…&resources[type]=…&section_id=predictive-search
+  Every result is an ARIA option inside one listbox, grouped by type; the
+  visible group headings are hidden from assistive technology because each
+  group is named by aria-label. The "no results" text sits outside the
+  listbox, which may only contain options.
+{%- endcomment -%}
+
+{%- liquid
+  assign resources = predictive_search.resources
+  assign result_count = resources.products.size | plus: resources.collections.size | plus: resources.pages.size | plus: resources.articles.size
+  assign encoded_terms = predictive_search.terms | url_encode
+  assign search_url = routes.search_url | append: '?q=' | append: encoded_terms | append: '&options%5Bprefix%5D=last'
+-%}
+
+<div data-predictive-results>
+  {%- if predictive_search.performed -%}
+    {%- liquid
+      if result_count == 0 and resources.queries.size == 0
+        assign status_text = 'search.no_results' | t: terms: predictive_search.terms
+      else
+        assign status_text = 'search.results_count' | t: count: result_count, terms: predictive_search.terms
+      endif
+    -%}
+    {%- if result_count == 0 and resources.queries.size == 0 -%}
+      <p class="predictive-search__empty">{{ status_text }}</p>
+    {%- endif -%}
+    <div
+      class="predictive-search__panel"
+      id="PredictiveListbox"
+      role="listbox"
+      aria-label="{{ 'search.suggestions' | t }}"
+      data-result-count="{{ status_text | strip }}"
+    >
+      {%- if resources.queries.size > 0 -%}
+        <div class="predictive-search__group" role="group" aria-label="{{ 'search.suggestions' | t }}">
+          <p class="predictive-search__heading" aria-hidden="true">{{ 'search.suggestions' | t }}</p>
+          {%- for query in resources.queries -%}
+            <a
+              id="PredictiveQuery-{{ forloop.index }}"
+              class="predictive-search__option predictive-search__query"
+              href="{{ query.url }}"
+              role="option"
+              aria-selected="false"
+            >
+              {%- render 'icon', name: 'search' -%}
+              <span>{{ query.styled_text }}</span>
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if resources.products.size > 0 -%}
+        <div class="predictive-search__group" role="group" aria-label="{{ 'search.products' | t }}">
+          <p class="predictive-search__heading" aria-hidden="true">{{ 'search.products' | t }}</p>
+          {%- for product in resources.products -%}
+            <a
+              id="PredictiveProduct-{{ forloop.index }}"
+              class="predictive-search__option predictive-search__product"
+              href="{{ product.url }}"
+              role="option"
+              aria-selected="false"
+            >
+              <span class="predictive-search__thumb">
+                {%- render 'image', image: product.featured_image, sizes: '56px', alt: '', placeholder: 'product-1' -%}
+              </span>
+              <span class="predictive-search__product-info">
+                <span class="predictive-search__title">{{ product.title | escape }}</span>
+                {%- if settings.predictive_search_show_price -%}
+                  <span class="predictive-search__price">
+                    {%- if product.price_varies -%}
+                      {%- assign price_min = product.price_min | money -%}
+                      {{ 'products.price_from_html' | t: price: price_min }}
+                    {%- else -%}
+                      {{ product.price | money }}
+                    {%- endif -%}
+                  </span>
+                {%- endif -%}
+              </span>
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- liquid
+        assign other_results = resources.collections | concat: resources.pages | concat: resources.articles
+      -%}
+      {%- if other_results.size > 0 -%}
+        <div class="predictive-search__group" role="group" aria-label="{{ 'search.collections_and_pages' | t }}">
+          <p class="predictive-search__heading" aria-hidden="true">{{ 'search.collections_and_pages' | t }}</p>
+          {%- for item in other_results -%}
+            <a
+              id="PredictivePage-{{ forloop.index }}"
+              class="predictive-search__option"
+              href="{{ item.url }}"
+              role="option"
+              aria-selected="false"
+            >
+              {{- item.title | escape -}}
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <a
+        id="PredictiveSearchAll"
+        class="predictive-search__option predictive-search__all"
+        href="{{ search_url }}"
+        role="option"
+        aria-selected="false"
+      >
+        {{- 'search.search_for' | t: terms: predictive_search.terms -}}
+        {%- render 'icon', name: 'arrow-right' -%}
+      </a>
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .predictive-search__panel {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .predictive-search__group {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  .predictive-search__heading {
+    margin-bottom: 0.375rem;
+    font-family: var(--font-body-family);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .predictive-search__option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-small);
+    text-decoration: none;
+  }
+
+  .predictive-search__option:hover,
+  .predictive-search__option[aria-selected='true'] {
+    background: var(--color-overlay);
+  }
+
+  .predictive-search__query mark {
+    background: none;
+    color: inherit;
+    font-weight: 700;
+  }
+
+  .predictive-search__thumb {
+    flex: 0 0 3.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-small);
+    background: var(--color-overlay);
+  }
+
+  .predictive-search__thumb img,
+  .predictive-search__thumb svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .predictive-search__product-info {
+    display: grid;
+  }
+
+  .predictive-search__title {
+    font-weight: 600;
+  }
+
+  .predictive-search__price {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  .predictive-search__all {
+    justify-content: space-between;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    padding-top: 1rem;
+    font-weight: 600;
+  }
+
+  .predictive-search__empty {
+    margin-bottom: 0.75rem;
+    color: var(--color-text-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.predictive_search",
+  "settings": []
+}
+{% endschema %}

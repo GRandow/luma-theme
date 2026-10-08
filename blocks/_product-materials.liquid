@@ -1,0 +1,128 @@
+{%- doc -%}
+  Materials the product is made of, from metaobjects.
+
+  Reads the product metafield `custom.materials` (a list of references to
+  `material` metaobjects with `name`, `description`, `image` and `care`
+  fields). Each material is written once and shared by every product that
+  uses it, and links to its own page (templates/metaobject/material.json)
+  when the definition has web pages turned on. Renders nothing for products
+  without materials; in the editor it explains what to set up.
+{%- enddoc -%}
+
+{%- assign materials = closest.product.metafields.custom.materials.value -%}
+
+{%- if materials != blank -%}
+  <div class="product-materials" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      <h2 class="product-materials__heading h4">{{ block.settings.heading | escape }}</h2>
+    {%- endif -%}
+    <ul class="product-materials__list" role="list">
+      {%- for material in materials -%}
+        <li class="product-materials__item">
+          {%- comment -%} An image file reference resolves to a MediaImage; its preview_image is the image. {%- endcomment -%}
+          {%- assign material_image = material.image.value.preview_image | default: material.image.value -%}
+          {%- if block.settings.show_images and material_image != blank -%}
+            <span class="product-materials__image">
+              {%- render 'image', image: material_image, sizes: '64px', alt: '' -%}
+            </span>
+          {%- endif -%}
+          <div class="product-materials__text">
+            <p class="product-materials__name">
+              {%- if material.system.url != blank -%}
+                <a href="{{ material.system.url }}">{{ material.name.value | escape }}</a>
+              {%- else -%}
+                {{ material.name.value | escape }}
+              {%- endif -%}
+            </p>
+            {%- if block.settings.show_care and material.care.value != blank -%}
+              <p class="text-small text-muted">{{ material.care.value | escape | newline_to_br }}</p>
+            {%- endif -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="product-materials product-materials--empty text-small text-muted" {{ block.shopify_attributes }}>
+    {{ 'products.materials_setup_hint' | t }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-materials {
+    padding: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+  }
+
+  .product-materials__heading {
+    margin-bottom: 0.875rem;
+  }
+
+  .product-materials__list {
+    display: grid;
+    gap: 0.875rem;
+  }
+
+  .product-materials__item {
+    display: flex;
+    gap: 0.875rem;
+    align-items: center;
+  }
+
+  .product-materials__image {
+    flex: 0 0 3.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+
+  .product-materials__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-materials__name {
+    font-weight: var(--font-body-weight-bold);
+  }
+
+  .product-materials__name a {
+    text-decoration-color: var(--color-border-strong);
+  }
+
+  .product-materials--empty {
+    border-style: dashed;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_materials",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "t:defaults.materials_heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_images",
+      "label": "t:settings.show_images",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_care",
+      "label": "t:settings.show_care",
+      "default": true
+    },
+    {
+      "type": "paragraph",
+      "content": "t:content.materials_setup"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,9 @@
+# The theme editor rewrites these files, header comment included.
+config/settings_data.json
+templates/**/*.json
+sections/*.json
+
+node_modules
+.shopify
+licenses
+*.woff2

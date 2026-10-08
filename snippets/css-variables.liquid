@@ -1,0 +1,114 @@
+{%- doc -%}
+  Turns the theme settings into CSS custom properties: the font faces (the
+  bundled brand fonts or two fonts from the Shopify font library), layout and
+  shape tokens, and one class per color scheme. The first scheme also styles
+  `:root`, so the page background follows it.
+
+  Sections and blocks pick a scheme with `class="color-{{ section.settings.color_scheme }}"`.
+
+  @example
+  {% render 'css-variables' %}
+{%- enddoc -%}
+
+{%- liquid
+  if settings.type_brand_fonts
+    assign heading_family = "'Manrope', ui-sans-serif, system-ui, sans-serif"
+    assign heading_weight = 700
+    assign body_family = "'DM Sans', ui-sans-serif, system-ui, sans-serif"
+    assign body_weight = 400
+    assign body_weight_bold = 650
+  else
+    assign heading_family = settings.type_heading_font.family | append: ', ' | append: settings.type_heading_font.fallback_families
+    assign heading_weight = settings.type_heading_font.weight
+    assign body_family = settings.type_body_font.family | append: ', ' | append: settings.type_body_font.fallback_families
+    assign body_weight = settings.type_body_font.weight
+    assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+    assign body_weight_bold = body_font_bold.weight | default: 700
+  endif
+
+  case settings.button_shape
+    when 'pill'
+      assign button_radius = '999px'
+    when 'rounded'
+      assign button_radius = '0.75rem'
+    else
+      assign button_radius = '0px'
+  endcase
+
+  case settings.card_image_ratio
+    when 'portrait'
+      assign card_ratio = '4 / 5'
+    when 'landscape'
+      assign card_ratio = '4 / 3'
+    when 'natural'
+      assign card_ratio = 'auto'
+    else
+      assign card_ratio = '1 / 1'
+  endcase
+-%}
+
+{% style %}
+  {%- if settings.type_brand_fonts -%}
+    @font-face {
+      font-family: 'Manrope';
+      src: url('{{ 'manrope-latin-wght.woff2' | asset_url }}') format('woff2');
+      font-weight: 200 800;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'DM Sans';
+      src: url('{{ 'dm-sans-latin-wght.woff2' | asset_url }}') format('woff2');
+      font-weight: 100 1000;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'DM Sans';
+      src: url('{{ 'dm-sans-latin-wght-italic.woff2' | asset_url }}') format('woff2');
+      font-weight: 100 1000;
+      font-style: italic;
+      font-display: swap;
+    }
+  {%- else -%}
+    {%- assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic' -%}
+    {{ settings.type_heading_font | font_face: font_display: 'swap' }}
+    {{ settings.type_body_font | font_face: font_display: 'swap' }}
+    {{ body_font_bold | font_face: font_display: 'swap' }}
+    {{ body_font_italic | font_face: font_display: 'swap' }}
+  {%- endif -%}
+
+  :root {
+    --font-heading-family: {{ heading_family }};
+    --font-heading-weight: {{ heading_weight }};
+    --font-body-family: {{ body_family }};
+    --font-body-weight: {{ body_weight }};
+    --font-body-weight-bold: {{ body_weight_bold }};
+    --heading-scale: {{ settings.type_heading_scale | divided_by: 100.0 }};
+
+    --page-width: {{ settings.page_width }};
+    --page-margin: {{ settings.page_margin }}px;
+    --section-spacing: {{ settings.section_spacing }}px;
+    --radius: {{ settings.corner_radius }}px;
+    --radius-small: {{ settings.corner_radius | divided_by: 2 }}px;
+    --button-radius: {{ button_radius }};
+    --card-image-ratio: {{ card_ratio }};
+  }
+
+  {% for scheme in settings.color_schemes -%}
+    {%- if forloop.first %}:root,{% endif %}
+    .color-{{ scheme.id }} {
+      --color-background: {{ scheme.settings.background }};
+      --color-surface: {{ scheme.settings.surface }};
+      --color-text: {{ scheme.settings.text }};
+      --color-text-muted: {{ scheme.settings.text_muted }};
+      --color-accent: {{ scheme.settings.accent }};
+      --color-button: {{ scheme.settings.button }};
+      --color-button-label: {{ scheme.settings.button_label }};
+      --color-secondary-button-label: {{ scheme.settings.secondary_button_label }};
+      --color-border: color-mix(in srgb, var(--color-text) 13%, transparent);
+      --color-border-strong: color-mix(in srgb, var(--color-text) 38%, transparent);
+      --color-overlay: color-mix(in srgb, var(--color-text) 6%, transparent);
+    }
+  {% endfor %}
+{% endstyle %}

@@ -1,0 +1,82 @@
+{%- doc -%}
+  "Sort by" select for collection and search results. With filters on the
+  page it belongs to the filters form through the `form` attribute; without
+  filters it is a small form of its own.
+
+  @param {object} results - The `collection` or `search` object
+  @param {string} section_id - The section that owns the filters form
+  @param {boolean} standalone - Render its own form (no filters form on the page)
+  @param {string} action - Form action for the standalone form
+  @param {string} [terms] - Search terms to keep in the standalone form
+
+  @example
+  {% render 'sort-by', results: collection, section_id: section.id, standalone: false, action: collection.url %}
+{%- enddoc -%}
+
+{%- liquid
+  assign sort_by = results.sort_by | default: results.default_sort_by
+  assign select_id = 'SortBy-' | append: section_id
+  assign form_id = 'FacetsForm-' | append: section_id
+-%}
+
+{%- capture sort_select -%}
+  <div class="field sort-by" data-facets-update="sort">
+    <label class="field__label" for="{{ select_id }}">{{ 'collections.sort_by' | t }}</label>
+    <select
+      id="{{ select_id }}"
+      class="select"
+      name="sort_by"
+      {% unless standalone %}
+        form="{{ form_id }}"
+      {% endunless %}
+    >
+      {%- for option in results.sort_options -%}
+        <option
+          value="{{ option.value | escape }}"
+          {% if option.value == sort_by %}
+            selected
+          {% endif %}
+        >
+          {{ option.name | escape }}
+        </option>
+      {%- endfor -%}
+    </select>
+  </div>
+{%- endcapture -%}
+
+{%- if standalone -%}
+  <form id="{{ form_id }}" class="sort-by__form" action="{{ action }}" method="get" data-facets-form>
+    {%- if terms != blank -%}
+      <input type="hidden" name="q" value="{{ terms | escape }}">
+      <input type="hidden" name="options[prefix]" value="last">
+    {%- endif -%}
+    {{ sort_select }}
+    <noscript>
+      <button type="submit" class="button button--secondary button--small">{{ 'collections.apply_sort' | t }}</button>
+    </noscript>
+  </form>
+{%- else -%}
+  {{ sort_select }}
+{%- endif -%}
+
+{% stylesheet %}
+  .sort-by {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .sort-by .field__label {
+    white-space: nowrap;
+  }
+
+  .sort-by .select {
+    min-height: 2.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .sort-by__form {
+    display: flex;
+    gap: 0.5rem;
+  }
+{% endstylesheet %}

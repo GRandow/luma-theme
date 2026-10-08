@@ -1,0 +1,111 @@
+{%- doc -%}
+  Button theme block: a link styled as a primary, secondary or text button.
+  Without a link it renders as a disabled link, so a half-configured button
+  never sends shoppers to `#`.
+{%- enddoc -%}
+
+{%- liquid
+  assign style_class = ''
+  case block.settings.style
+    when 'secondary'
+      assign style_class = 'button--secondary'
+    when 'link'
+      assign style_class = 'button--link'
+  endcase
+-%}
+
+<a
+  class="button {{ style_class }} {{ block.settings.size }}"
+  {% if block.settings.link != blank %}
+    href="{{ block.settings.link }}"
+    {% if block.settings.new_tab %}
+      target="_blank" rel="noopener"
+    {% endif %}
+  {% else %}
+    role="link" aria-disabled="true"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {{- block.settings.label | escape -}}
+  {%- if block.settings.show_arrow -%}
+    {%- render 'icon', name: 'arrow-right' -%}
+  {%- endif -%}
+</a>
+
+{% schema %}
+{
+  "name": "t:names.button",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "t:defaults.button_label"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    },
+    {
+      "type": "checkbox",
+      "id": "new_tab",
+      "label": "t:settings.new_tab",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:options.button_style.primary"
+        },
+        {
+          "value": "secondary",
+          "label": "t:options.button_style.secondary"
+        },
+        {
+          "value": "link",
+          "label": "t:options.button_style.link"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:settings.size",
+      "options": [
+        {
+          "value": "button--small",
+          "label": "t:options.size.small"
+        },
+        {
+          "value": "button--medium",
+          "label": "t:options.size.medium"
+        },
+        {
+          "value": "button--large",
+          "label": "t:options.size.large"
+        }
+      ],
+      "default": "button--large"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow",
+      "label": "t:settings.show_arrow",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.button",
+      "category": "t:categories.links"
+    }
+  ]
+}
+{% endschema %}

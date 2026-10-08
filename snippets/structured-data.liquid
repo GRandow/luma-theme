@@ -1,0 +1,58 @@
+{%- doc -%}
+  Schema.org JSON-LD for search engines: Organization and WebSite (with a
+  sitelinks search box) on the home page, and Shopify's own `structured_data`
+  output for products and articles. Breadcrumbs add their own list.
+
+  @example
+  {% render 'structured-data' %}
+{%- enddoc -%}
+
+{%- case request.page_type -%}
+  {%- when 'index' -%}
+    {%- liquid
+      assign home_url = request.origin | append: routes.root_url
+      assign search_target = request.origin | append: routes.search_url | append: '?q={search_term_string}'
+      assign social_keys = 'social_instagram,social_tiktok,social_facebook,social_pinterest,social_youtube' | split: ','
+      assign social_urls = ''
+      for key in social_keys
+        if settings[key] != blank
+          assign social_urls = social_urls | append: settings[key] | append: '|'
+        endif
+      endfor
+      assign social_urls = social_urls | split: '|'
+    -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": {{ shop.name | json }},
+            "url": {{ home_url | json }},
+            {%- if settings.logo != blank %}
+              "logo": {{ settings.logo | image_url: width: 600 | prepend: 'https:' | json }},
+            {%- endif %}
+            "sameAs": {{ social_urls | json }}
+          },
+          {
+            "@type": "WebSite",
+            "name": {{ shop.name | json }},
+            "url": {{ home_url | json }},
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {{ search_target | json }},
+              "query-input": "required name=search_term_string"
+            }
+          }
+        ]
+      }
+    </script>
+  {%- when 'product' -%}
+    <script type="application/ld+json">
+      {{ product | structured_data }}
+    </script>
+  {%- when 'article' -%}
+    <script type="application/ld+json">
+      {{ article | structured_data }}
+    </script>
+{%- endcase -%}

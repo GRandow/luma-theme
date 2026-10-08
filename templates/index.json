@@ -1,0 +1,230 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "eyebrow": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Autumn collection · 2026</p>",
+            "style": "eyebrow"
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Fewer things. Better chosen.",
+            "tag": "h1",
+            "size": "h0"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Thoughtful essentials with lasting form, honest materials, and a quiet point of view.</p>",
+            "style": "text-lead"
+          }
+        },
+        "buttons": {
+          "type": "group",
+          "settings": {
+            "direction": "row",
+            "gap": 12
+          },
+          "blocks": {
+            "primary": {
+              "type": "button",
+              "settings": {
+                "label": "Explore the collection",
+                "link": "shopify://collections/all",
+                "show_arrow": true
+              }
+            },
+            "secondary": {
+              "type": "button",
+              "settings": {
+                "label": "Browse collections",
+                "link": "/collections",
+                "style": "secondary"
+              }
+            }
+          },
+          "block_order": ["primary", "secondary"]
+        }
+      },
+      "block_order": ["eyebrow", "heading", "text", "buttons"],
+      "settings": {
+        "layout": "card",
+        "color_scheme": "scheme-4",
+        "height": "medium",
+        "horizontal_position": "start",
+        "vertical_position": "middle"
+      }
+    },
+    "benefits": {
+      "type": "section",
+      "blocks": {
+        "delivery": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "truck",
+            "heading": "Free delivery",
+            "text": "Orders over $100"
+          }
+        },
+        "returns": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "return",
+            "heading": "Easy returns",
+            "text": "Within 30 days"
+          }
+        },
+        "payment": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "shield",
+            "heading": "Secure payment",
+            "text": "Shopify checkout"
+          }
+        },
+        "quality": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "check",
+            "heading": "Curated quality",
+            "text": "Considered goods"
+          }
+        }
+      },
+      "block_order": ["delivery", "returns", "payment", "quality"],
+      "settings": {
+        "layout": "grid",
+        "columns": 4,
+        "columns_mobile": 1,
+        "gap": 12,
+        "padding_top": 16,
+        "padding_bottom": 16
+      }
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": {
+        "eyebrow": "Curated edit",
+        "heading": "Objects people keep reaching for",
+        "collection": "frontpage",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "show_view_all": true,
+        "color_scheme": "scheme-1"
+      }
+    },
+    "collections": {
+      "type": "collection-list",
+      "settings": {
+        "eyebrow": "Shop by room and ritual",
+        "heading": "Popular collections",
+        "description": "<p>A useful way into the collection, organized around the things you actually do.</p>",
+        "columns_desktop": 6,
+        "image_ratio": "square",
+        "show_count": true,
+        "color_scheme": "scheme-2"
+      }
+    },
+    "story": {
+      "type": "media-with-content",
+      "blocks": {
+        "eyebrow": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Made to last</p>",
+            "style": "eyebrow"
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Honest materials, <em>quietly</em> made."
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Stoneware fired twice, linen washed soft, oak finished with oil instead of lacquer. Every material on our product pages links to how it is made and how to care for it.</p>",
+            "muted": true
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "Read our story",
+            "link": "/pages/about",
+            "style": "secondary"
+          }
+        }
+      },
+      "block_order": ["eyebrow", "heading", "text", "button"],
+      "settings": {
+        "image_ratio": "portrait",
+        "media_position": "left",
+        "vertical_alignment": "middle",
+        "color_scheme": "scheme-1",
+        "padding_top": 24
+      }
+    },
+    "promo": {
+      "type": "section",
+      "blocks": {
+        "eyebrow": {
+          "type": "text",
+          "settings": {
+            "text": "<p>The considered home event</p>",
+            "style": "eyebrow"
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Up to 20% off the edit.",
+            "size": "h1"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Use code <strong>LUMA20</strong> at checkout on orders over $150. Ends when the good pieces are gone.</p>",
+            "muted": true
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "Shop the event",
+            "link": "shopify://collections/all",
+            "style": "secondary",
+            "show_arrow": true
+          }
+        }
+      },
+      "block_order": ["eyebrow", "heading", "text", "button"],
+      "settings": {
+        "card": true,
+        "card_color_scheme": "scheme-3",
+        "gap": 16,
+        "padding_top": 0,
+        "padding_bottom": 72
+      }
+    }
+  },
+  "order": ["hero", "benefits", "featured", "collections", "story", "promo"]
+}

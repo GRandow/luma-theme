@@ -1,0 +1,49 @@
+{%- doc -%}
+  Product title (the page's `h1`) with the vendor above it.
+{%- enddoc -%}
+
+{%- assign product = closest.product -%}
+
+<div class="product-title" {{ block.shopify_attributes }}>
+  {%- if block.settings.show_vendor and product.vendor != blank -%}
+    <p class="product-title__vendor eyebrow">{{ product.vendor | escape }}</p>
+  {%- endif -%}
+  <h1 class="product-title__heading {{ block.settings.size }}">{{ product.title | escape }}</h1>
+</div>
+
+{% stylesheet %}
+  .product-title__vendor {
+    margin-bottom: 0.5rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.product_title",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:settings.show_vendor",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "label": "t:settings.size",
+      "options": [
+        {
+          "value": "h1",
+          "label": "t:options.size.large"
+        },
+        {
+          "value": "h2",
+          "label": "t:options.size.medium"
+        }
+      ],
+      "default": "h1"
+    }
+  ]
+}
+{% endschema %}

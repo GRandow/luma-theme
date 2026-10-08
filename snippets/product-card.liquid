@@ -1,0 +1,75 @@
+{%- doc -%}
+  Product card used by collections, search, recommendations and featured
+  collections. The title link stretches over the whole card, so there is one
+  link per product for keyboards and screen readers; the images are
+  decorative because the title already names the product.
+
+  @param {product} product - The product to show
+  @param {string} [sizes] - `sizes` for the card images, from the grid's column count
+  @param {string} [heading_tag] - Heading element for the title; defaults to `h3`
+
+  @example
+  {% render 'product-card', product: product, sizes: '(min-width: 990px) 25vw, 50vw' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign heading_tag = heading_tag | default: 'h3'
+  assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign image = product.featured_media.preview_image
+  assign show_secondary = false
+  if settings.card_show_secondary_image and product.media.size > 1
+    assign show_secondary = true
+    assign secondary_image = product.media[1].preview_image
+  endif
+
+  assign swatch_option = null
+  if settings.card_show_swatches
+    for option in product.options_with_values
+      if option.values.first.swatch
+        assign swatch_option = option
+        break
+      endif
+    endfor
+  endif
+-%}
+
+<article class="product-card">
+  <div class="product-card__media">
+    {%- render 'image', image: image, sizes: sizes, alt: '', placeholder: 'product-1' -%}
+    {%- if show_secondary -%}
+      {%- render 'image', image: secondary_image, sizes: sizes, alt: '', class: 'product-card__image--secondary' -%}
+    {%- endif -%}
+
+    <div class="product-card__badges">
+      {%- if product.available == false -%}
+        <span class="badge badge--sold-out">{{ 'products.sold_out' | t }}</span>
+      {%- elsif product.compare_at_price > product.price -%}
+        <span class="badge badge--sale">{{ 'products.sale' | t }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="product-card__info">
+    {%- if settings.card_show_vendor -%}
+      <p class="product-card__vendor">{{ product.vendor | escape }}</p>
+    {%- endif -%}
+
+    <{{ heading_tag }} class="product-card__title">
+      <a class="product-card__link" href="{{ product.url }}">{{ product.title | escape }}</a>
+    </{{ heading_tag }}>
+
+    {%- render 'price', product: product -%}
+
+    {%- if swatch_option -%}
+      <div class="card-swatches">
+        <span class="visually-hidden">{{ swatch_option.name | escape }}:</span>
+        {%- for value in swatch_option.values limit: 6 -%}
+          {%- render 'swatch', swatch: value.swatch, label: value.name -%}
+        {%- endfor -%}
+        {%- if swatch_option.values.size > 6 -%}
+          <span class="text-small text-muted">+{{ swatch_option.values.size | minus: 6 }}</span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</article>

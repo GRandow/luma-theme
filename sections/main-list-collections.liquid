@@ -1,0 +1,102 @@
+{%- comment -%}
+  All collections (/collections): every collection as a card, with
+  pagination. Collections without an image borrow their first product's.
+{%- endcomment -%}
+
+{%- liquid
+  assign columns = section.settings.columns_desktop
+  assign card_sizes = '(min-width: 990px) calc(100vw / ' | append: columns | append: '), 50vw'
+-%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="page-width">
+    <div class="section-heading">
+      <h1>{{ 'collections.all_collections' | t }}</h1>
+    </div>
+
+    {%- paginate collections by section.settings.per_page -%}
+      <ul class="grid collection-list" role="list" style="--columns-desktop: {{ columns }}; --columns-tablet: 3;">
+        {%- for collection in collections -%}
+          {%- liquid
+            assign cover = collection.featured_image
+            if cover == blank
+              assign cover = collection.products.first.featured_media.preview_image
+            endif
+          -%}
+          <li>
+            <a class="collection-card" href="{{ collection.url }}">
+              <span class="collection-card__media media media--square">
+                {%- render 'image', image: cover, sizes: card_sizes, alt: '', placeholder: 'collection-1' -%}
+              </span>
+              <span class="collection-card__title">{{ collection.title | escape }}</span>
+              <span class="collection-card__count text-muted">
+                {{- 'sections.collection_list.products_count' | t: count: collection.all_products_count -}}
+              </span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+      {%- render 'pagination', paginate: paginate -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:names.all_collections",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "range",
+      "id": "per_page",
+      "label": "t:settings.collections_per_page",
+      "min": 6,
+      "max": 48,
+      "step": 6,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:settings.columns_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

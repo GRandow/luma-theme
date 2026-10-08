@@ -1,0 +1,109 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title": {
+          "type": "_product-title",
+          "settings": {
+            "show_vendor": false,
+            "size": "h1"
+          }
+        },
+        "price": {
+          "type": "_product-price",
+          "settings": {
+            "show_savings": true,
+            "show_tax_note": true
+          }
+        },
+        "variant_picker": {
+          "type": "_variant-picker",
+          "settings": {
+            "style": "buttons",
+            "show_swatches": true
+          }
+        },
+        "inventory": {
+          "type": "_product-inventory",
+          "settings": {
+            "threshold": 5,
+            "show_in_stock": true
+          }
+        },
+        "buy_buttons": {
+          "type": "_buy-buttons",
+          "settings": {
+            "show_quantity": true,
+            "show_dynamic_checkout": true
+          }
+        },
+        "description": {
+          "type": "_product-description",
+          "settings": {}
+        },
+        "materials": {
+          "type": "_product-materials",
+          "settings": {
+            "heading": "Materials & care",
+            "show_images": true,
+            "show_care": true
+          }
+        },
+        "shipping": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Shipping & returns",
+            "content": "<p>Free delivery on orders over $100. Returns are free within 30 days of delivery.</p>",
+            "icon": "truck"
+          }
+        },
+        "care": {
+          "type": "collapsible-content",
+          "settings": {
+            "heading": "Good to know",
+            "content": "<p>Connect this block to a product metafield in the theme editor to show different text on every product.</p>",
+            "icon": "info"
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "variant_picker",
+        "inventory",
+        "buy_buttons",
+        "description",
+        "materials",
+        "shipping",
+        "care"
+      ],
+      "settings": {
+        "media_width": "55",
+        "sticky_info": true,
+        "show_breadcrumbs": true,
+        "color_scheme": "scheme-1"
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like",
+        "intent": "related",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "color_scheme": "scheme-1"
+      }
+    }
+  },
+  "order": ["main", "recommendations"]
+}

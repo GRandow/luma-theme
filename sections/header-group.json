@@ -1,0 +1,49 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "t:names.header_group",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-shipping": {
+          "type": "announcement",
+          "settings": {
+            "text": "Free delivery on orders over $100",
+            "link": "shopify://collections/all"
+          }
+        },
+        "announcement-returns": {
+          "type": "announcement",
+          "settings": {
+            "text": "Easy returns within 30 days"
+          }
+        }
+      },
+      "block_order": ["announcement-shipping", "announcement-returns"],
+      "settings": {
+        "color_scheme": "scheme-3",
+        "autoplay": true,
+        "autoplay_seconds": 5
+      }
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "menu": "main-menu",
+        "customer_account_menu": "customer-account-main-menu",
+        "sticky": true
+      }
+    }
+  },
+  "order": ["announcement-bar", "header"]
+}

@@ -1,0 +1,4 @@
+# LF line endings in every checkout, Windows included, so Prettier and Theme Check
+# see the same files locally and in CI.
+* text=auto eol=lf
+*.woff2 binary

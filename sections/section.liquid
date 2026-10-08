@@ -1,0 +1,342 @@
+{%- comment -%}
+  Custom section: a container for any theme blocks, laid out as a stack, a
+  row or a grid. Its presets (benefits row, promo banner, rich text) are just
+  different starting blocks and settings for the same file, which keeps the
+  number of sections small and the editor flexible.
+{%- endcomment -%}
+
+<div
+  class="custom-section section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div
+    class="{% if section.settings.width == 'page' %}page-width{% endif %}{% if section.settings.card %} custom-section__card color-{{ section.settings.card_color_scheme }}{% endif %}"
+  >
+    <div
+      class="custom-section__content custom-section__content--{{ section.settings.layout }}"
+      style="
+        --columns-desktop: {{ section.settings.columns }};
+        --columns-tablet: {{ section.settings.columns | at_most: 2 }};
+        --columns-mobile: {{ section.settings.columns_mobile }};
+        --gap: {{ section.settings.gap }}px;
+        --align: {{ section.settings.alignment }};
+      "
+    >
+      {%- content_for 'blocks' -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-section__card {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.75rem, 6vw, 3.5rem);
+    border-radius: calc(var(--radius) * 1.35);
+  }
+
+  .custom-section__content {
+    gap: var(--gap);
+  }
+
+  .custom-section__content--stack {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--align);
+  }
+
+  .custom-section__content--stack > * {
+    max-width: 100%;
+  }
+
+  .custom-section__content--row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: var(--align);
+  }
+
+  .custom-section__content--grid {
+    display: grid;
+    grid-template-columns: repeat(var(--columns-mobile), minmax(0, 1fr));
+  }
+
+  @media (min-width: 750px) {
+    .custom-section__content--grid {
+      grid-template-columns: repeat(var(--columns-tablet), minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 990px) {
+    .custom-section__content--grid {
+      grid-template-columns: repeat(var(--columns-desktop), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.custom_section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:settings.layout",
+      "options": [
+        {
+          "value": "stack",
+          "label": "t:options.layout.stack"
+        },
+        {
+          "value": "row",
+          "label": "t:options.layout.row"
+        },
+        {
+          "value": "grid",
+          "label": "t:options.layout.grid"
+        }
+      ],
+      "default": "stack"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:settings.columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "visible_if": "{{ section.settings.layout == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "t:settings.columns_mobile",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 1,
+      "visible_if": "{{ section.settings.layout == 'grid' }}"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.alignment.start"
+        },
+        {
+          "value": "center",
+          "label": "t:options.alignment.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.alignment.end"
+        }
+      ],
+      "default": "flex-start",
+      "visible_if": "{{ section.settings.layout != 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page",
+          "label": "t:options.width.page"
+        },
+        {
+          "value": "full",
+          "label": "t:options.width.full"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "checkbox",
+      "id": "card",
+      "label": "t:settings.show_as_card",
+      "info": "t:info.show_as_card",
+      "default": false
+    },
+    {
+      "type": "color_scheme",
+      "id": "card_color_scheme",
+      "label": "t:settings.card_color_scheme",
+      "default": "scheme-3",
+      "visible_if": "{{ section.settings.card }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.custom_section",
+      "category": "t:categories.layout"
+    },
+    {
+      "name": "t:names.benefits",
+      "category": "t:categories.text",
+      "settings": {
+        "layout": "grid",
+        "columns": 4,
+        "columns_mobile": 1,
+        "gap": 12,
+        "padding_top": 16,
+        "padding_bottom": 16
+      },
+      "blocks": {
+        "benefit-delivery": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "truck",
+            "heading": "t:defaults.benefit_delivery_heading",
+            "text": "t:defaults.benefit_delivery_text"
+          }
+        },
+        "benefit-returns": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "return",
+            "heading": "t:defaults.benefit_returns_heading",
+            "text": "t:defaults.benefit_returns_text"
+          }
+        },
+        "benefit-payment": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "shield",
+            "heading": "t:defaults.benefit_payment_heading",
+            "text": "t:defaults.benefit_payment_text"
+          }
+        },
+        "benefit-quality": {
+          "type": "icon-text",
+          "settings": {
+            "icon": "check",
+            "heading": "t:defaults.benefit_quality_heading",
+            "text": "t:defaults.benefit_quality_text"
+          }
+        }
+      },
+      "block_order": ["benefit-delivery", "benefit-returns", "benefit-payment", "benefit-quality"]
+    },
+    {
+      "name": "t:names.promo_banner",
+      "category": "t:categories.banners",
+      "settings": {
+        "card": true,
+        "card_color_scheme": "scheme-3",
+        "gap": 16
+      },
+      "blocks": {
+        "eyebrow": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.promo_eyebrow",
+            "style": "eyebrow"
+          }
+        },
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "t:defaults.promo_heading",
+            "size": "h1"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.promo_text",
+            "muted": true
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "label": "t:defaults.promo_button",
+            "style": "secondary",
+            "show_arrow": true
+          }
+        }
+      },
+      "block_order": ["eyebrow", "heading", "text", "button"]
+    },
+    {
+      "name": "t:names.rich_text",
+      "category": "t:categories.text",
+      "settings": {
+        "alignment": "center"
+      },
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "alignment": "center"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "alignment": "center",
+            "style": "text-lead"
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "style": "secondary"
+          }
+        }
+      },
+      "block_order": ["heading", "text", "button"]
+    }
+  ]
+}
+{% endschema %}

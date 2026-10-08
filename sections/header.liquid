@@ -1,0 +1,537 @@
+{%- comment -%}
+  Header: logo, the main menu (two levels of dropdowns, plus a third level
+  shown as grouped links), search, customer account and cart.
+
+  The dropdowns are <details> elements, so the menu works before JavaScript
+  loads; header.js only adds closing behavior (Escape, outside click, one open
+  at a time). On small screens the same menu opens in a drawer.
+{%- endcomment -%}
+
+{%- liquid
+  assign menu = section.settings.menu
+  assign search_dialog_id = 'SearchModal-' | append: section.id
+  assign drawer_id = 'MenuDrawer-' | append: section.id
+-%}
+
+<script src="{{ 'header.js' | asset_url }}" type="module"></script>
+{%- if settings.predictive_search_enabled -%}
+  <script src="{{ 'predictive-search.js' | asset_url }}" type="module"></script>
+{%- endif -%}
+
+<sticky-header
+  class="header-wrapper color-{{ section.settings.color_scheme }}"
+  {% if section.settings.sticky %}
+    data-sticky
+  {% endif %}
+>
+  <header class="header page-width">
+    <button
+      type="button"
+      class="icon-button header__menu-toggle"
+      data-dialog-open="{{ drawer_id }}"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <span class="visually-hidden">{{ 'header.open_menu' | t }}</span>
+      {%- render 'icon', name: 'menu' -%}
+    </button>
+
+    <a class="logo header__logo" href="{{ routes.root_url }}">
+      {%- if settings.logo != blank -%}
+        {%- liquid
+          assign logo_width_2x = settings.logo_width | times: 2
+          assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio | round
+          assign logo_sizes = settings.logo_width | append: 'px'
+          assign logo_widths = settings.logo_width | append: ', ' | append: logo_width_2x
+        -%}
+        {{
+          settings.logo
+          | image_url: width: logo_width_2x
+          | image_tag:
+            class: 'header__logo-image',
+            widths: logo_widths,
+            sizes: logo_sizes,
+            width: settings.logo_width,
+            height: logo_height,
+            alt: shop.name,
+            loading: 'eager'
+        }}
+      {%- else -%}
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="header__logo-text">{{ shop.name | escape }}</span>
+      {%- endif -%}
+    </a>
+
+    {%- if menu != blank -%}
+      <nav class="header__nav" aria-label="{{ 'header.main_menu' | t }}">
+        <ul class="header__menu" role="list">
+          {%- for link in menu.links -%}
+            <li>
+              {%- if link.links != blank -%}
+                <details class="header__dropdown" data-header-dropdown>
+                  <summary class="header__menu-item{% if link.child_active %} is-active{% endif %}">
+                    {{- link.title | escape -}}
+                    {%- render 'icon', name: 'chevron-down' -%}
+                  </summary>
+                  <div class="header__submenu">
+                    <ul class="header__submenu-list" role="list">
+                      {%- for child in link.links -%}
+                        <li class="header__submenu-group">
+                          <a
+                            class="header__submenu-link{% if child.links != blank %} header__submenu-link--heading{% endif %}"
+                            href="{{ child.url }}"
+                            {% if child.current %}
+                              aria-current="page"
+                            {% endif %}
+                          >
+                            {{- child.title | escape -}}
+                          </a>
+                          {%- if child.links != blank -%}
+                            <ul role="list">
+                              {%- for grandchild in child.links -%}
+                                <li>
+                                  <a
+                                    class="header__submenu-link"
+                                    href="{{ grandchild.url }}"
+                                    {% if grandchild.current %}
+                                      aria-current="page"
+                                    {% endif %}
+                                  >
+                                    {{- grandchild.title | escape -}}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </details>
+              {%- else -%}
+                <a
+                  class="header__menu-item"
+                  href="{{ link.url }}"
+                  {% if link.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  {{- link.title | escape -}}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    <div class="header__actions">
+      <a
+        class="icon-button"
+        href="{{ routes.search_url }}"
+        {% if settings.predictive_search_enabled %}
+          data-dialog-open="{{ search_dialog_id }}" aria-haspopup="dialog" aria-expanded="false"
+        {% endif %}
+      >
+        <span class="visually-hidden">{{ 'header.search' | t }}</span>
+        {%- render 'icon', name: 'search' -%}
+      </a>
+
+      {%- if shop.customer_accounts_enabled -%}
+        <shopify-account class="header__account" menu="{{ section.settings.customer_account_menu }}">
+          <span slot="signed-out-avatar" class="icon-button">
+            <span class="visually-hidden">{{ 'header.account' | t }}</span>
+            {%- render 'icon', name: 'account' -%}
+          </span>
+        </shopify-account>
+      {%- endif -%}
+
+      <a
+        class="icon-button header__cart"
+        href="{{ routes.cart_url }}"
+        {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+          data-dialog-open="CartDrawer" aria-haspopup="dialog" aria-expanded="false"
+        {% endif %}
+      >
+        <span class="visually-hidden">{{ 'header.cart' | t }}</span>
+        {%- render 'icon', name: 'bag' -%}
+        <span
+          class="cart-count"
+          data-cart-count
+          {% if cart.item_count == 0 %}
+            hidden
+          {% endif %}
+        >
+          {{- cart.item_count -}}
+        </span>
+      </a>
+    </div>
+  </header>
+
+  {%- comment -%} Small screens: the main menu in a drawer. {%- endcomment -%}
+  <dialog
+    id="{{ drawer_id }}"
+    class="drawer drawer--left color-{{ section.settings.color_scheme }}"
+    aria-label="{{ 'header.menu' | t }}"
+  >
+    <div class="drawer__header">
+      <span class="drawer__title">{{ 'header.menu' | t }}</span>
+      <button type="button" class="icon-button" data-dialog-close>
+        <span class="visually-hidden">{{ 'general.close' | t }}</span>
+        {%- render 'icon', name: 'close' -%}
+      </button>
+    </div>
+    <nav class="drawer__body mobile-menu" aria-label="{{ 'header.main_menu' | t }}">
+      <ul role="list">
+        {%- for link in menu.links -%}
+          <li>
+            {%- if link.links != blank -%}
+              <details class="accordion">
+                <summary class="accordion__summary">
+                  {{- link.title | escape -}}
+                  {%- render 'icon', name: 'chevron-down' -%}
+                </summary>
+                <ul class="accordion__content mobile-menu__sublist" role="list">
+                  <li>
+                    <a href="{{ link.url }}">{{ 'header.view_all' | t: title: link.title }}</a>
+                  </li>
+                  {%- for child in link.links -%}
+                    <li>
+                      <a
+                        href="{{ child.url }}"
+                        {% if child.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {{- child.title | escape -}}
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </details>
+            {%- else -%}
+              <a
+                class="mobile-menu__link"
+                href="{{ link.url }}"
+                {% if link.current %}
+                  aria-current="page"
+                {% endif %}
+              >
+                {{- link.title | escape -}}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  </dialog>
+
+  {%- if settings.predictive_search_enabled -%}
+    <dialog
+      id="{{ search_dialog_id }}"
+      class="modal search-modal color-{{ section.settings.color_scheme }}"
+      aria-label="{{ 'search.title' | t }}"
+    >
+      <predictive-search
+        class="search-modal__inner page-width"
+        data-show-price="{{ settings.predictive_search_show_price }}"
+      >
+        <form class="search-form" action="{{ routes.search_url }}" method="get" role="search">
+          <label class="visually-hidden" for="SearchInput-{{ section.id }}">{{ 'search.label' | t }}</label>
+          <input
+            id="SearchInput-{{ section.id }}"
+            class="input search-form__input"
+            type="search"
+            name="q"
+            value="{{ search.terms | escape }}"
+            placeholder="{{ 'search.placeholder' | t }}"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            role="combobox"
+            aria-expanded="false"
+            aria-controls="PredictiveListbox"
+            aria-autocomplete="list"
+          >
+          <input type="hidden" name="options[prefix]" value="last">
+          <button type="submit" class="icon-button search-form__submit">
+            <span class="visually-hidden">{{ 'search.submit' | t }}</span>
+            {%- render 'icon', name: 'search' -%}
+          </button>
+          <button type="button" class="icon-button" data-dialog-close>
+            <span class="visually-hidden">{{ 'general.close' | t }}</span>
+            {%- render 'icon', name: 'close' -%}
+          </button>
+        </form>
+        <div id="PredictiveResults-{{ section.id }}" class="predictive-search" data-results hidden></div>
+        <p class="visually-hidden" role="status" data-status></p>
+      </predictive-search>
+    </dialog>
+  {%- endif -%}
+</sticky-header>
+
+{% stylesheet %}
+  .header-wrapper {
+    display: block;
+    position: relative;
+    z-index: 20;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Shopify wraps the section in div.header-section, exactly as tall as the
+     header, so the wrapper is what has to stick. */
+  .header-section:has(> sticky-header[data-sticky]) {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .header-wrapper.is-scrolled {
+    box-shadow: 0 10px 30px -24px rgb(17 17 15 / 0.45);
+  }
+
+  .header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.25rem;
+  }
+
+  .header__logo {
+    justify-self: center;
+  }
+
+  .header__nav {
+    display: none;
+  }
+
+  .header__actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  .header__cart {
+    position: relative;
+  }
+
+  .cart-count {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.125rem;
+    display: grid;
+    place-items: center;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background: var(--color-text);
+    color: var(--color-background);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  shopify-account {
+    display: inline-flex;
+  }
+
+  @media (min-width: 990px) {
+    .header {
+      grid-template-columns: auto 1fr auto;
+      gap: 2rem;
+    }
+
+    .header__menu-toggle {
+      display: none;
+    }
+
+    .header__logo {
+      justify-self: start;
+    }
+
+    .header__nav {
+      display: block;
+      justify-self: center;
+    }
+  }
+
+  .header__menu {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .header__menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .header__menu-item::-webkit-details-marker {
+    display: none;
+  }
+
+  .header__menu-item:hover,
+  .header__dropdown[open] > .header__menu-item {
+    background: var(--color-overlay);
+  }
+
+  .header__menu-item[aria-current='page'],
+  .header__menu-item.is-active {
+    color: var(--color-accent);
+  }
+
+  .header__menu-item .icon {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .header__dropdown {
+    position: relative;
+  }
+
+  .header__dropdown[open] > .header__menu-item .icon {
+    transform: rotate(180deg);
+  }
+
+  .header__submenu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 14rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: 0 24px 50px -28px rgb(17 17 15 / 0.35);
+  }
+
+  .header__submenu-list {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  .header__submenu-list:has(.header__submenu-link--heading) {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(11rem, 1fr);
+    gap: 1rem;
+  }
+
+  .header__submenu-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-small);
+    font-size: 0.9375rem;
+    text-decoration: none;
+  }
+
+  .header__submenu-link:hover {
+    background: var(--color-overlay);
+  }
+
+  .header__submenu-link--heading {
+    font-weight: 700;
+  }
+
+  .header__submenu-link[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .mobile-menu ul {
+    display: grid;
+  }
+
+  .mobile-menu__link,
+  .mobile-menu .accordion__summary {
+    display: flex;
+    padding: 0.875rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .mobile-menu > ul > li {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-menu .accordion {
+    border: 0;
+  }
+
+  .mobile-menu__sublist a {
+    display: block;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    color: var(--color-text-muted);
+  }
+
+  .mobile-menu a[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .search-modal {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 auto;
+    padding: 1rem 0 1.5rem;
+    border: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    box-shadow: 0 30px 60px -40px rgb(17 17 15 / 0.5);
+  }
+
+  .predictive-search {
+    margin-top: 1rem;
+    max-height: min(70dvh, 36rem);
+    overflow-y: auto;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.header",
+  "class": "header-section",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:settings.menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "t:settings.customer_account_menu",
+      "info": "t:info.customer_account_menu",
+      "default": "customer-account-main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "t:settings.sticky_header",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

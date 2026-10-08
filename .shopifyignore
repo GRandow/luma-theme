@@ -1,0 +1,5 @@
+# Files listed here are skipped by Shopify CLI (`theme dev`, `push`, `pull`).
+# Nothing is ignored by default: a first push needs config/settings_data.json
+# for the colour schemes. When deploying over a live theme that merchants edit,
+# skip their settings instead with:
+#   shopify theme push --ignore config/settings_data.json --ignore "templates/*.json"

@@ -1,0 +1,42 @@
+{%- doc -%}
+  Links to the store's social profiles, from the "Social media" theme
+  settings. Renders nothing when no profile is set.
+
+  @example
+  {% render 'social-icons' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign networks = 'instagram,tiktok,facebook,pinterest,youtube' | split: ','
+  assign has_any = false
+  for network in networks
+    assign key = 'social_' | append: network
+    if settings[key] != blank
+      assign has_any = true
+    endif
+  endfor
+-%}
+
+{%- if has_any -%}
+  <ul class="social-icons" role="list">
+    {%- for network in networks -%}
+      {%- assign key = 'social_' | append: network -%}
+      {%- if settings[key] != blank -%}
+        {%- case network -%}
+          {%- when 'tiktok' -%}
+            {%- assign network_name = 'TikTok' -%}
+          {%- when 'youtube' -%}
+            {%- assign network_name = 'YouTube' -%}
+          {%- else -%}
+            {%- assign network_name = network | capitalize -%}
+        {%- endcase -%}
+        <li>
+          <a class="icon-button" href="{{ settings[key] }}" target="_blank" rel="noopener">
+            <span class="visually-hidden">{{ 'general.social_link' | t: network: network_name }}</span>
+            {%- render 'icon', name: network -%}
+          </a>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

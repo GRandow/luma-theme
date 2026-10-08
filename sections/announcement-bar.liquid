@@ -1,0 +1,216 @@
+{%- comment -%}
+  Announcement bar with optional scheduling. Each message can start and end on
+  a date (store time zone). Liquid filters by date when the page renders; the
+  <announcement-bar> element repeats the check in the browser, because a
+  storefront page can be served from cache after the date has changed.
+{%- endcomment -%}
+
+{%- liquid
+  assign store_today = 'now' | date: '%Y-%m-%d'
+  assign store_offset = 'now' | date: '%:z'
+  assign rendered = 0
+-%}
+
+<script src="{{ 'announcement-bar.js' | asset_url }}" type="module"></script>
+
+<announcement-bar
+  class="announcement-bar color-{{ section.settings.color_scheme }}"
+  data-utc-offset="{{ store_offset }}"
+  {% if section.settings.autoplay %}
+    data-autoplay="{{ section.settings.autoplay_seconds | times: 1000 }}"
+  {% endif %}
+>
+  <div class="announcement-bar__inner page-width">
+    <button type="button" class="announcement-bar__nav" data-step="-1" hidden>
+      <span class="visually-hidden">{{ 'sections.announcement.previous' | t }}</span>
+      {%- render 'icon', name: 'chevron-left' -%}
+    </button>
+
+    <div class="announcement-bar__messages" aria-label="{{ 'sections.announcement.label' | t }}" role="region">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign starts_on = block.settings.starts_on | strip
+          assign ends_on = block.settings.ends_on | strip
+          assign out_of_schedule = false
+          if starts_on != blank and store_today < starts_on
+            assign out_of_schedule = true
+          endif
+          if ends_on != blank and store_today > ends_on
+            assign out_of_schedule = true
+          endif
+        -%}
+
+        {%- if out_of_schedule == false or request.design_mode -%}
+          {%- assign rendered = rendered | plus: 1 -%}
+          <p
+            class="announcement-bar__message{% if rendered == 1 %} is-active{% endif %}"
+            {% if starts_on != blank %}
+              data-starts-on="{{ starts_on }}"
+            {% endif %}
+            {% if ends_on != blank %}
+              data-ends-on="{{ ends_on }}"
+            {% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}">{{ block.settings.text }}</a>
+            {%- else -%}
+              {{ block.settings.text }}
+            {%- endif -%}
+            {%- if out_of_schedule -%}
+              <span class="badge">{{ 'sections.announcement.scheduled' | t }}</span>
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    <button type="button" class="announcement-bar__nav" data-step="1" hidden>
+      <span class="visually-hidden">{{ 'sections.announcement.next' | t }}</span>
+      {%- render 'icon', name: 'chevron-right' -%}
+    </button>
+  </div>
+</announcement-bar>
+
+{% stylesheet %}
+  .announcement-bar {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .announcement-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+  }
+
+  .announcement-bar__messages {
+    display: grid;
+    flex: 1;
+    text-align: center;
+  }
+
+  .announcement-bar__message {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .announcement-bar__message.is-active {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .announcement-bar__message a {
+    text-decoration: none;
+  }
+
+  .announcement-bar__message a:hover {
+    text-decoration: underline;
+  }
+
+  .announcement-bar__nav {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+  }
+
+  .announcement-bar__nav .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.announcement_bar",
+  "class": "announcement-bar-section",
+  "max_blocks": 5,
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-3"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:settings.autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_seconds",
+      "label": "t:settings.autoplay_seconds",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5,
+      "visible_if": "{{ section.settings.autoplay }}"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "t:names.announcement",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "text",
+          "label": "t:settings.text",
+          "default": "t:defaults.announcement"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:settings.link"
+        },
+        {
+          "type": "header",
+          "content": "t:content.schedule"
+        },
+        {
+          "type": "text",
+          "id": "starts_on",
+          "label": "t:settings.starts_on",
+          "placeholder": "2026-11-27",
+          "info": "t:info.schedule_date"
+        },
+        {
+          "type": "text",
+          "id": "ends_on",
+          "label": "t:settings.ends_on",
+          "placeholder": "2026-11-30",
+          "info": "t:info.schedule_date"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.announcement_bar",
+      "blocks": [
+        {
+          "type": "announcement"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

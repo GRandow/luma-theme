@@ -1,0 +1,75 @@
+{%- doc -%}
+  Progress towards free shipping, from the threshold in the cart theme
+  settings. Liquid has no exchange rates, so the bar only appears when the
+  shopper is buying in the store's own currency; in other currencies Shopify
+  checkout remains the source of truth for shipping rates.
+
+  @example
+  {% render 'free-shipping-bar' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | times: 100 | round
+  assign show_bar = false
+  if threshold > 0 and cart.item_count > 0 and cart.currency.iso_code == shop.currency
+    assign show_bar = true
+    assign remaining = threshold | minus: cart.total_price
+    assign progress = cart.total_price | times: 100 | divided_by: threshold | at_most: 100
+  endif
+-%}
+
+{%- if show_bar -%}
+  <div class="free-shipping">
+    <p class="free-shipping__message">
+      {%- if remaining > 0 -%}
+        {%- assign remaining_money = remaining | money -%}
+        {{ 'cart.free_shipping_remaining_html' | t: amount: remaining_money }}
+      {%- else -%}
+        {%- render 'icon', name: 'truck' -%}
+        {{ 'cart.free_shipping_unlocked' | t }}
+      {%- endif -%}
+    </p>
+    <div
+      class="free-shipping__track"
+      role="progressbar"
+      aria-label="{{ 'cart.free_shipping_progress' | t }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="{{ progress }}"
+    >
+      <span class="free-shipping__fill" style="width: {{ progress }}%;"></span>
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .free-shipping {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-small);
+    background: var(--color-overlay);
+    font-size: 0.875rem;
+  }
+
+  .free-shipping__message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .free-shipping__track {
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--color-border);
+  }
+
+  .free-shipping__fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-accent);
+    transition: width 0.4s ease;
+  }
+{% endstylesheet %}

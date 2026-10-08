@@ -1,0 +1,93 @@
+{%- comment -%}
+  Cart drawer, rendered by the layout as a static section so that every cart
+  request can ask Shopify to re-render it (`sections: cart-drawer`). The
+  <dialog> stays in place; cart.js only swaps `data-cart-content`, so an
+  open drawer stays open and keeps focus while lines change.
+{%- endcomment -%}
+
+<script src="{{ 'cart.js' | asset_url }}" type="module"></script>
+
+<cart-drawer data-cart-section="{{ section.id }}">
+  <dialog
+    id="CartDrawer"
+    class="drawer cart-drawer color-{{ section.settings.color_scheme }}"
+    aria-labelledby="CartDrawerTitle"
+  >
+    <div class="cart-drawer__content" data-cart-content data-item-count="{{ cart.item_count }}">
+      <div class="drawer__header">
+        <h2 id="CartDrawerTitle" class="drawer__title" tabindex="-1">
+          {{- 'cart.title' | t -}}
+          {%- if cart.item_count > 0 %}
+            <span class="cart-drawer__count">({{ cart.item_count }})</span>
+          {%- endif -%}
+        </h2>
+        <button type="button" class="icon-button" data-dialog-close>
+          <span class="visually-hidden">{{ 'general.close' | t }}</span>
+          {%- render 'icon', name: 'close' -%}
+        </button>
+      </div>
+
+      {%- if cart.item_count > 0 -%}
+        <div class="drawer__body cart-drawer__body">
+          {%- render 'free-shipping-bar' -%}
+          <form id="CartDrawerForm" action="{{ routes.cart_url }}" method="post" novalidate>
+            <cart-items>
+              <ul class="cart-lines" role="list">
+                {%- for item in cart.items -%}
+                  {%- render 'cart-line-item', item: item, id_prefix: 'CartDrawer', index: forloop.index -%}
+                {%- endfor -%}
+              </ul>
+            </cart-items>
+          </form>
+        </div>
+        <div class="drawer__footer">
+          {%- render 'cart-summary', form_id: 'CartDrawerForm', id_prefix: 'CartDrawer', show_view_cart: true -%}
+        </div>
+      {%- else -%}
+        <div class="drawer__body cart-empty">
+          <p class="h3">{{ 'cart.empty' | t }}</p>
+          <p class="text-muted">{{ 'cart.empty_hint' | t }}</p>
+          <a class="button" href="{{ routes.all_products_collection_url }}">{{ 'general.continue_shopping' | t }}</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+</cart-drawer>
+
+{% stylesheet %}
+  cart-drawer {
+    display: contents;
+  }
+
+  .cart-drawer__content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .cart-drawer__count {
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .cart-drawer__body {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.cart_drawer",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,75 @@
+{%- comment -%}
+  Standard page: the page's title and content, followed by any theme blocks
+  (an FAQ made of collapsible rows, a contact block, an app).
+{%- endcomment -%}
+
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <article class="page-width page-width--narrow main-page">
+    <h1>{{ page.title | escape }}</h1>
+    {%- if page.content != blank -%}
+      <div class="rte">{{ page.content }}</div>
+    {%- endif -%}
+    <div class="main-page__blocks">
+      {%- content_for 'blocks' -%}
+    </div>
+  </article>
+</div>
+
+{% stylesheet %}
+  .main-page > * + * {
+    margin-top: 1.5rem;
+  }
+
+  .main-page__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .main-page__blocks:empty {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.page",
+  "class": "section-wrapper",
+  "blocks": [{ "type": "@theme" }, { "type": "@app" }],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:settings.padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}
