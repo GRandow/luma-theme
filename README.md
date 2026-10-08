@@ -29,8 +29,8 @@ Theme Check runs with every check enabled (`theme-check:all`) and reports no off
 ```
 assets/      base.css, brand fonts, and one ES module per component, shared helpers mapped in an import map
              (@theme/utils, @theme/cart-api)
-blocks/      generic theme blocks (heading, text, button, image, group, icon-text, spacer, collapsible content)
-             and private product blocks (_product-title, _variant-picker, _buy-buttons…)
+blocks/      generic theme blocks (heading, text, button, image, group, icon-text, spacer, collapsible content,
+             contact form) and private product blocks (_product-title, _variant-picker, _buy-buttons…)
 config/      theme settings and the five Luma color schemes
 layout/      theme.liquid (header/footer groups, cart drawer, import map, config for scripts), password.liquid
 locales/     en (default) and pt-BR, storefront and editor strings

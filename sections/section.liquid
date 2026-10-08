@@ -120,13 +120,20 @@
       "visible_if": "{{ section.settings.layout == 'grid' }}"
     },
     {
-      "type": "range",
+      "type": "select",
       "id": "columns_mobile",
       "label": "t:settings.columns_mobile",
-      "min": 1,
-      "max": 2,
-      "step": 1,
-      "default": 1,
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1",
       "visible_if": "{{ section.settings.layout == 'grid' }}"
     },
     {
@@ -226,7 +233,7 @@
       "settings": {
         "layout": "grid",
         "columns": 4,
-        "columns_mobile": 1,
+        "columns_mobile": "1",
         "gap": 12,
         "padding_top": 16,
         "padding_bottom": 16

@@ -371,6 +371,7 @@ h4,
 
 /* The Luma mark: a dark disc with a moss dot, used when no logo is uploaded. */
 .logo-mark {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -564,7 +565,8 @@ h4,
   opacity: 1;
 }
 
-.input[aria-invalid='true'] {
+.input[aria-invalid='true'],
+.textarea[aria-invalid='true'] {
   border-color: #b42318;
 }
 
@@ -583,14 +585,21 @@ h4,
   color: var(--color-accent);
 }
 
+/* Input and button side by side. In a narrow column the button moves below
+   the input and takes the full width. */
 .inline-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
 .inline-form .input {
-  flex: 1;
+  flex: 999 1 12rem;
   min-width: 0;
+}
+
+.inline-form .button {
+  flex: 1 0 auto;
 }
 
 /* Quantity selector: − input + */
@@ -1067,7 +1076,9 @@ a.collection-card:hover .collection-card__media img {
     height: auto;
     max-height: calc(100vh - 7rem);
     margin: 0;
+    padding-right: 0.5rem;
     overflow-y: auto;
+    scrollbar-width: thin;
     background: transparent;
     box-shadow: none;
     transform: none;

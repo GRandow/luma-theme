@@ -1,0 +1,145 @@
+{%- doc -%}
+  Contact form: Shopify's `contact` form, which emails the message to the
+  store's sender address. The contact page template uses it inside the page
+  section, and it works in any section that accepts theme blocks.
+{%- enddoc -%}
+
+{%- liquid
+  assign form_id = 'ContactForm-' | append: block.id
+  assign field_id = 'Contact-' | append: block.id
+-%}
+
+<div class="contact-form" {{ block.shopify_attributes }}>
+  {%- form 'contact', id: form_id, class: 'contact-form__form' -%}
+    {%- if form.posted_successfully? -%}
+      <p class="form-message form-message--success" role="status">
+        {%- render 'icon', name: 'check' -%}
+        {{- 'contact.success' | t -}}
+      </p>
+    {%- endif -%}
+
+    {%- if form.errors -%}
+      <div class="form-message form-message--error" role="alert">
+        {%- render 'icon', name: 'alert' -%}
+        <ul role="list">
+          {%- for field in form.errors -%}
+            <li>
+              {{ form.errors.translated_fields[field] | capitalize }}
+              {{ form.errors.messages[field] }}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    <div class="contact-form__row">
+      <div class="field">
+        <label class="field__label" for="{{ field_id }}-name">
+          {{- 'contact.name' | t }}
+          <span class="text-muted">({{ 'contact.optional' | t }})</span>
+        </label>
+        <input
+          id="{{ field_id }}-name"
+          class="input"
+          type="text"
+          name="contact[name]"
+          value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+          autocomplete="name"
+        >
+      </div>
+      <div class="field">
+        <label class="field__label" for="{{ field_id }}-email">{{ 'contact.email' | t }}</label>
+        <input
+          id="{{ field_id }}-email"
+          class="input"
+          type="email"
+          name="contact[email]"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+          required
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+          {% endif %}
+        >
+      </div>
+    </div>
+
+    {%- if block.settings.show_phone -%}
+      <div class="field">
+        <label class="field__label" for="{{ field_id }}-phone">
+          {{- 'contact.phone' | t }}
+          <span class="text-muted">({{ 'contact.optional' | t }})</span>
+        </label>
+        <input
+          id="{{ field_id }}-phone"
+          class="input"
+          type="tel"
+          name="contact[phone]"
+          value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+          autocomplete="tel"
+        >
+      </div>
+    {%- endif -%}
+
+    <div class="field">
+      <label class="field__label" for="{{ field_id }}-message">{{ 'contact.message' | t }}</label>
+      <textarea
+        id="{{ field_id }}-message"
+        class="textarea"
+        name="contact[body]"
+        rows="6"
+        required
+        {% if form.errors contains 'body' %}
+          aria-invalid="true"
+        {% endif %}
+      >{{ form.body }}</textarea>
+    </div>
+
+    <button type="submit" class="button">{{ 'contact.send' | t }}</button>
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  .contact-form__form {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .contact-form__row {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 750px) {
+    .contact-form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .contact-form__form .button {
+    justify-self: start;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.contact_form",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_phone",
+      "label": "t:settings.show_phone",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.contact_form",
+      "category": "t:categories.forms"
+    }
+  ]
+}
+{% endschema %}

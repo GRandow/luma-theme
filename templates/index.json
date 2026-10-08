@@ -110,7 +110,7 @@
       "settings": {
         "layout": "grid",
         "columns": 4,
-        "columns_mobile": 1,
+        "columns_mobile": "1",
         "gap": 12,
         "padding_top": 16,
         "padding_bottom": 16
@@ -121,7 +121,7 @@
       "settings": {
         "eyebrow": "Curated edit",
         "heading": "Objects people keep reaching for",
-        "collection": "frontpage",
+        "collection": "all",
         "products_to_show": 8,
         "columns_desktop": 4,
         "columns_mobile": "2",
@@ -135,7 +135,8 @@
         "eyebrow": "Shop by room and ritual",
         "heading": "Popular collections",
         "description": "<p>A useful way into the collection, organized around the things you actually do.</p>",
-        "columns_desktop": 6,
+        "collections": ["kitchen", "lighting-decor", "tableware", "textiles"],
+        "columns_desktop": 4,
         "image_ratio": "square",
         "show_count": true,
         "color_scheme": "scheme-2"

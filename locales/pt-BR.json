@@ -203,5 +203,14 @@
     "add_to_wallet": "Adicionar à Apple Wallet",
     "print": "Imprimir",
     "shop_link": "Começar a comprar"
+  },
+  "contact": {
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "message": "Mensagem",
+    "optional": "opcional",
+    "send": "Enviar mensagem",
+    "success": "Obrigado pelo contato. Responderemos em breve."
   }
 }

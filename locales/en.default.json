@@ -203,5 +203,14 @@
     "add_to_wallet": "Add to Apple Wallet",
     "print": "Print",
     "shop_link": "Start shopping"
+  },
+  "contact": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone number",
+    "message": "Message",
+    "optional": "optional",
+    "send": "Send message",
+    "success": "Thanks for getting in touch. We'll get back to you soon."
   }
 }

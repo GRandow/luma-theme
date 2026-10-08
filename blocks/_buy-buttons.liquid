@@ -122,6 +122,27 @@
     min-height: 3.25rem;
     border-radius: var(--button-radius) !important;
   }
+
+  /* Shopify's unbranded "Buy it now" button, in the theme's primary style. */
+  .product-form__buttons .shopify-payment-button__button--unbranded {
+    background: var(--color-button);
+    color: var(--color-button-label);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: var(--font-body-weight-bold);
+    line-height: 1.2;
+    transition: background-color 0.2s ease;
+  }
+
+  .product-form__buttons .shopify-payment-button__button--unbranded:hover:not([disabled]) {
+    background: color-mix(in srgb, var(--color-button) 84%, var(--color-background));
+  }
+
+  .product-form__buttons .shopify-payment-button__more-options {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: underline;
+  }
 {% endstylesheet %}
 
 {% schema %}

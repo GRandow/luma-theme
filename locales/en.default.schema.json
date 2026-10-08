@@ -56,7 +56,8 @@
     "not_found": "Page not found",
     "blog": "Blog",
     "article": "Article",
-    "password": "Password page"
+    "password": "Password page",
+    "contact_form": "Contact form"
   },
   "categories": {
     "text": "Text",
@@ -65,7 +66,8 @@
     "layout": "Layout",
     "banners": "Banners",
     "products": "Products",
-    "collections": "Collections"
+    "collections": "Collections",
+    "forms": "Forms"
   },
   "settings": {
     "logo": "Logo",
@@ -178,7 +180,8 @@
     "collections_per_page": "Collections per page",
     "articles_per_page": "Articles per page",
     "show_tags": "Show tag filters",
-    "show_author": "Show author"
+    "show_author": "Show author",
+    "show_phone": "Show phone number field"
   },
   "options": {
     "paragraph": "Paragraph",
