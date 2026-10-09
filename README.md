@@ -6,6 +6,12 @@ An Online Store 2.0 Shopify theme written from scratch in Liquid for **Luma**, t
 
 Theme Check runs with every check enabled (`theme-check:all`) and reports no offenses. All five color schemes pass WCAG AA contrast (`npm run contrast`).
 
+## Live preview
+
+**[Open the theme on the demo store](https://luma-dev-xfj7vgat.myshopify.com/?preview_theme_id=167440023769)** and enter the store password: **`luma`**
+
+It is a Shopify development store, so the password page cannot be removed and no real orders go through. The link previews the theme from the store's theme library, which `npm run push` keeps up to date.
+
 ## Screenshots
 
 ![Home page: hero card, store benefits and the Curated Edit collection](docs/screenshots/home.jpg)
@@ -66,14 +72,15 @@ npm install
 shopify theme dev --store your-store.myshopify.com   # live preview at http://127.0.0.1:9292
 ```
 
-| Script                                    | What it does                        |
-| ----------------------------------------- | ----------------------------------- |
-| `npm run check`                           | Theme Check, failing on suggestions |
-| `npm run format` / `npm run format:check` | Prettier with the Liquid plugin     |
-| `npm run lint`                            | ESLint for the JavaScript           |
-| `npm run contrast`                        | WCAG contrast of every color scheme |
+| Script                                    | What it does                                                                 |
+| ----------------------------------------- | ---------------------------------------------------------------------------- |
+| `npm run check`                           | Theme Check, failing on suggestions                                          |
+| `npm run format` / `npm run format:check` | Prettier with the Liquid plugin                                              |
+| `npm run lint`                            | ESLint for the JavaScript                                                    |
+| `npm run contrast`                        | WCAG contrast of every color scheme                                          |
+| `npm run push`                            | Uploads the theme to the store's Luma theme, the one behind the live preview |
 
-GitHub Actions runs all four on every push and pull request.
+GitHub Actions runs the four checks on every push and pull request.
 
 ## Store setup
 
