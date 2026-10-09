@@ -24,9 +24,21 @@
 
   assign swatch_option = null
   if settings.card_show_swatches
+    assign color_entries = product.metafields.shopify['color-pattern'].value
     for option in product.options_with_values
-      if option.values.first.swatch
+      assign linked_swatches = option.values | map: 'swatch' | compact
+      if linked_swatches.size > 0
         assign swatch_option = option
+        break
+      endif
+      assign value_names = option.values | map: 'name'
+      for entry in color_entries
+        if value_names contains entry.label.value
+          assign swatch_option = option
+          break
+        endif
+      endfor
+      if swatch_option
         break
       endif
     endfor
@@ -64,7 +76,7 @@
       <div class="card-swatches">
         <span class="visually-hidden">{{ swatch_option.name | escape }}:</span>
         {%- for value in swatch_option.values limit: 6 -%}
-          {%- render 'swatch', swatch: value.swatch, label: value.name -%}
+          {%- render 'option-swatch', value: value, color_entries: color_entries -%}
         {%- endfor -%}
         {%- if swatch_option.values.size > 6 -%}
           <span class="text-small text-muted">+{{ swatch_option.values.size | minus: 6 }}</span>

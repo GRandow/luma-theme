@@ -1075,8 +1075,10 @@ a.collection-card:hover .collection-card__media img {
     width: auto;
     height: auto;
     max-height: calc(100vh - 7rem);
-    margin: 0;
-    padding-right: 0.5rem;
+    /* The negative margin and matching padding leave room for selected swatch
+       rings and focus outlines, which the scroll container would clip. */
+    margin: -0.375rem 0 0 -0.375rem;
+    padding: 0.375rem 0.5rem 0.375rem 0.375rem;
     overflow-y: auto;
     scrollbar-width: thin;
     background: transparent;

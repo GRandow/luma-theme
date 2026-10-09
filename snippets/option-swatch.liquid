@@ -1,0 +1,29 @@
+{%- doc -%}
+  Swatch for one product option value. It uses the value's own swatch, which
+  Shopify fills when the option is linked to the Color category metafield, and
+  otherwise the entry with the same name in the product's Color category
+  metafield, so a product whose colors are set still gets swatches when its
+  option values come without one.
+
+  @param {object} value - The product option value
+  @param {object} [color_entries] - Entries of the product's Color category metafield
+
+  @example
+  {% render 'option-swatch', value: value, color_entries: product.metafields.shopify['color-pattern'].value %}
+{%- enddoc -%}
+
+{%- liquid
+  assign fallback_color = null
+  assign fallback_image = null
+  if value.swatch == blank
+    for entry in color_entries
+      if entry.label.value == value.name
+        assign fallback_color = entry.color.value
+        assign fallback_image = entry.image.value
+        break
+      endif
+    endfor
+  endif
+
+  render 'swatch', swatch: value.swatch, color: fallback_color, image: fallback_image, label: value.name
+-%}

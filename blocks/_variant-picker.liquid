@@ -11,9 +11,16 @@
 
   Values that are sold out with the current selection stay selectable and
   are struck through, so shoppers can still see the combination.
+
+  Swatches come from the option values (an option linked to the Color category
+  metafield) or, failing that, from the product's Color category metafield
+  entries with the same names.
 {%- enddoc -%}
 
-{%- assign product = closest.product -%}
+{%- liquid
+  assign product = closest.product
+  assign color_entries = product.metafields.shopify['color-pattern'].value
+-%}
 
 <variant-picker
   class="variant-picker"
@@ -26,8 +33,19 @@
     {%- for option in product.options_with_values -%}
       {%- liquid
         assign uses_swatches = false
-        if block.settings.show_swatches and option.values.first.swatch
-          assign uses_swatches = true
+        if block.settings.show_swatches
+          assign linked_swatches = option.values | map: 'swatch' | compact
+          if linked_swatches.size > 0
+            assign uses_swatches = true
+          else
+            assign value_names = option.values | map: 'name'
+            for entry in color_entries
+              if value_names contains entry.label.value
+                assign uses_swatches = true
+                break
+              endif
+            endfor
+          endif
         endif
         assign option_id = block.id | append: '-' | append: option.position
       -%}
@@ -81,7 +99,7 @@
                 for="{{ input_id }}"
               >
                 {%- if uses_swatches -%}
-                  {%- render 'swatch', swatch: value.swatch, label: value.name -%}
+                  {%- render 'option-swatch', value: value, color_entries: color_entries -%}
                 {%- else -%}
                   {{- value | escape -}}
                 {%- endif -%}

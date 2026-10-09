@@ -121,7 +121,7 @@
       "settings": {
         "eyebrow": "Curated edit",
         "heading": "Objects people keep reaching for",
-        "collection": "all",
+        "collection": "curated-edit",
         "products_to_show": 8,
         "columns_desktop": 4,
         "columns_mobile": "2",
@@ -176,6 +176,7 @@
       },
       "block_order": ["eyebrow", "heading", "text", "button"],
       "settings": {
+        "image": "shopify://shop_images/pexels-photo-6754875.jpg",
         "image_ratio": "portrait",
         "media_position": "left",
         "vertical_alignment": "middle",
